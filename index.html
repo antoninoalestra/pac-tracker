@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard PAC & Monitoraggio Portafoglio</title>
+    <title>Dashboard PAC Trade Republic</title>
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK Compatibile -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,7 +17,6 @@
             --card-bg: #1e293b;
             --accent-blue: #3b82f6;
             --accent-green: #10b981;
-            --accent-purple: #8b5cf6;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --border-color: #334155;
@@ -25,6 +29,7 @@
         header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         h1 { font-size: 1.5rem; font-weight: 700; }
         .subtitle { color: var(--text-secondary); font-size: 0.875rem; }
+        .status-badge { background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 6px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3); }
 
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
@@ -33,10 +38,9 @@
         .metric-value { font-size: 1.6rem; font-weight: 700; }
 
         .btn-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-        .btn { background-color: var(--accent-blue); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+        .btn { background-color: var(--accent-blue); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
         .btn-green { background-color: var(--accent-green); }
-        .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
-        .btn-danger { background-color: var(--danger); padding: 4px 8px; font-size: 0.75rem; }
+        .btn-danger { background-color: var(--danger); padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: none; color: white; cursor: pointer; }
 
         .main-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
         @media (min-width: 900px) { .main-grid { grid-template-columns: 3fr 2fr; } }
@@ -51,7 +55,6 @@
 
         .chart-container { position: relative; height: 280px; width: 100%; display: flex; justify-content: center; align-items: center; }
 
-        /* Modal / Form Overlay */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: var(--card-bg); border: 1px solid var(--border-color); padding: 24px; border-radius: 12px; width: 100%; max-width: 450px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -63,17 +66,15 @@
 
     <header>
         <div>
-            <h1>Dashboard PAC Personalizzata</h1>
-            <p class="subtitle">Monitoraggio dinamico e gestione automatica acquisti</p>
+            <h1>Dashboard PAC Trade Republic</h1>
+            <p class="subtitle">Sincronizzazione Cloud in tempo reale</p>
         </div>
+        <div class="status-badge" id="sync-status">☁️ Connesso al Cloud</div>
     </header>
 
     <div class="btn-toolbar">
         <button class="btn btn-green" onclick="openModal('pacModal')">+ Registra Versamento PAC</button>
         <button class="btn" onclick="openModal('assetModal')">+ Aggiungi Nuovo Asset</button>
-        <button class="btn btn-outline" onclick="exportData()">💾 Esporta Backup</button>
-        <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">📂 Importa Backup</button>
-        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
     </div>
 
     <div class="summary-grid">
@@ -88,7 +89,6 @@
     </div>
 
     <div class="main-grid">
-        <!-- Tabella Portafoglio -->
         <div class="card">
             <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Asset in Portafoglio</h2>
             <div style="overflow-x: auto;">
@@ -96,8 +96,8 @@
                     <thead>
                         <tr>
                             <th>Asset / ISIN</th>
-                            <th style="width: 100px;">Quote</th>
-                            <th style="width: 100px;">Prezzo (€)</th>
+                            <th style="width: 110px;">Quote</th>
+                            <th style="width: 110px;">Prezzo (€)</th>
                             <th>Valore (€)</th>
                             <th>Peso %</th>
                             <th>Azione</th>
@@ -107,11 +107,10 @@
                 </table>
             </div>
             <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 12px;">
-                💡 Puoi modificare le quote o i prezzi direttamente nelle caselle della tabella.
+                💡 Puoi modificare quote e prezzi direttamente nelle caselle della tabella per aggiornare il valore.
             </p>
         </div>
 
-        <!-- Grafico ad Anello -->
         <div class="card">
             <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Asset Allocation (%)</h2>
             <div class="chart-container">
@@ -171,20 +170,50 @@
     </div>
 
     <script>
+        // Configurazione Firebase integrata con le tue chiavi
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8Gf2INUG1LRvdLFTnLPGU9-DnQG1da7M",
+            authDomain: "pac-tracker-ad855.firebaseapp.com",
+            databaseURL: "https://pac-tracker-ad855-default-rtdb.firebaseio.com",
+            projectId: "pac-tracker-ad855",
+            storageBucket: "pac-tracker-ad855.firebasestorage.app",
+            messagingSenderId: "48319574793",
+            appId: "1:48319574793:web:ccb30de959edaeec1599d8"
+        };
+
+        // Inizializzazione Firebase Realtime Database
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const portfolioRef = db.ref('pac_portfolio');
+
+        // Asset di partenza predefiniti
         const defaultAssets = [
             { id: '1', name: 'Core MSCI World', isin: 'IE00B4L5Y983', quote: 10.104568, price: 128.59, color: '#3b82f6' },
             { id: '2', name: 'Core MSCI EM IMI', isin: 'IE00BKM4GZ66', quote: 10.491813, price: 46.75, color: '#10b981' },
             { id: '3', name: 'Eurozone Gov Bond', isin: 'IE00BH04GL39', quote: 0.0, price: 23.80, color: '#f59e0b' }
         ];
 
-        let assets = JSON.parse(localStorage.getItem('pac_v2_assets')) || defaultAssets;
+        let assets = [];
         let chart = null;
-
         const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-        function saveAndRefresh() {
-            localStorage.setItem('pac_v2_assets', JSON.stringify(assets));
+        // Sincronizzazione automatica dal Cloud
+        portfolioRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                assets = data;
+            } else {
+                assets = defaultAssets;
+                saveToCloud();
+            }
             render();
+        });
+
+        function saveToCloud() {
+            document.getElementById('sync-status').innerText = '⏳ Salvataggio...';
+            portfolioRef.set(assets).then(() => {
+                document.getElementById('sync-status').innerText = '☁️ Connesso al Cloud';
+            });
         }
 
         function render() {
@@ -203,7 +232,6 @@
                 const totalAssetVal = a.quote * a.price;
                 const weight = totalPortfolio > 0 ? ((totalAssetVal / totalPortfolio) * 100).toFixed(1) : '0.0';
 
-                // Tbody Row
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${a.name}</strong><br><span style="font-size:0.7rem; color:var(--text-secondary);">${a.isin}</span></td>
@@ -215,7 +243,6 @@
                 `;
                 tbody.appendChild(tr);
 
-                // Option for PAC Modal
                 const opt = document.createElement('option');
                 opt.value = i;
                 opt.innerText = `${a.name} (${a.isin})`;
@@ -227,13 +254,13 @@
 
         function updateAsset(index, key, val) {
             assets[index][key] = parseFloat(val) || 0;
-            saveAndRefresh();
+            saveToCloud();
         }
 
         function deleteAsset(index) {
             if (confirm(`Vuoi rimuovere ${assets[index].name} dal portafoglio?`)) {
                 assets.splice(index, 1);
-                saveAndRefresh();
+                saveToCloud();
             }
         }
 
@@ -248,14 +275,13 @@
             const color = colors[assets.length % colors.length];
             assets.push({ id: Date.now().toString(), name, isin, quote, price, color });
             
-            // Clear inputs
             document.getElementById('new-name').value = '';
             document.getElementById('new-isin').value = '';
             document.getElementById('new-quote').value = '0';
             document.getElementById('new-price').value = '';
 
             closeModal('assetModal');
-            saveAndRefresh();
+            saveToCloud();
         }
 
         function submitPacPurchase() {
@@ -269,20 +295,19 @@
                 assets[index].quote += shares;
             } else if (amount && amount > 0) {
                 if (assets[index].price <= 0) {
-                    alert('Imposta prima il prezzo dell asset per calcolare le quote dall importo in Euro!');
+                    alert('Imposta il prezzo dell asset per calcolare le quote in Euro!');
                     return;
                 }
-                const newShares = amount / assets[index].price;
-                assets[index].quote += newShares;
+                assets[index].quote += (amount / assets[index].price);
             } else {
-                alert('Inserisci un importo in Euro o il numero di quote acquistate');
+                alert('Inserisci un importo o il numero di quote acquistate');
                 return;
             }
 
             document.getElementById('pac-amount').value = '';
             document.getElementById('pac-shares').value = '';
             closeModal('pacModal');
-            saveAndRefresh();
+            saveToCloud();
         }
 
         function renderChart(totalVal) {
@@ -313,33 +338,6 @@
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assets, null, 2));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", `backup_pac_${new Date().toISOString().slice(0,10)}.json`);
-            dlAnchor.click();
-        }
-
-        function importData(event) {
-            const fileReader = new FileReader();
-            fileReader.onload = function(e) {
-                try {
-                    const importedAssets = JSON.parse(e.target.result);
-                    if (Array.isArray(importedAssets)) {
-                        assets = importedAssets;
-                        saveAndRefresh();
-                        alert('Backup ripristinato con successo!');
-                    }
-                } catch(err) {
-                    alert('Errore nel formato del file di backup.');
-                }
-            };
-            fileReader.readAsText(event.target.files[0]);
-        }
-
-        window.onload = render;
     </script>
 </body>
 </html>
