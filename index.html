@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard PAC & Monitoraggio Portafoglio</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-primary); padding: 20px; max-width: 1200px; margin: 0 auto; }
+        
+        header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        h1 { font-size: 1.5rem; font-weight: 700; }
+        .subtitle { color: var(--text-secondary); font-size: 0.875rem; }
+
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        
+        .metric-title { color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .metric-value { font-size: 1.6rem; font-weight: 700; }
+
+        .btn-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .btn { background-color: var(--accent-blue); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-green { background-color: var(--accent-green); }
+        .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .btn-danger { background-color: var(--danger); padding: 4px 8px; font-size: 0.75rem; }
+
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+        @media (min-width: 900px) { .main-grid { grid-template-columns: 3fr 2fr; } }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
+        th { color: var(--text-secondary); font-weight: 500; }
+
+        input[type="number"], input[type="text"], select {
+            background: #0f172a; border: 1px solid var(--border-color); color: white; padding: 8px 10px; border-radius: 6px; width: 100%; font-size: 0.85rem;
+        }
+
+        .chart-container { position: relative; height: 280px; width: 100%; display: flex; justify-content: center; align-items: center; }
+
+        /* Modal / Form Overlay */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border-color); padding: 24px; border-radius: 12px; width: 100%; max-width: 450px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>Dashboard PAC Personalizzata</h1>
+            <p class="subtitle">Monitoraggio dinamico e gestione automatica acquisti</p>
+        </div>
+    </header>
+
+    <div class="btn-toolbar">
+        <button class="btn btn-green" onclick="openModal('pacModal')">+ Registra Versamento PAC</button>
+        <button class="btn" onclick="openModal('assetModal')">+ Aggiungi Nuovo Asset</button>
+        <button class="btn btn-outline" onclick="exportData()">💾 Esporta Backup</button>
+        <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">📂 Importa Backup</button>
+        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+    </div>
+
+    <div class="summary-grid">
+        <div class="card">
+            <div class="metric-title">Valore Totale Portafoglio</div>
+            <div class="metric-value" id="total-val">€ 0,00</div>
+        </div>
+        <div class="card">
+            <div class="metric-title">Asset Totali</div>
+            <div class="metric-value" id="total-assets-count">0</div>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <!-- Tabella Portafoglio -->
+        <div class="card">
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Asset in Portafoglio</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Asset / ISIN</th>
+                            <th style="width: 100px;">Quote</th>
+                            <th style="width: 100px;">Prezzo (€)</th>
+                            <th>Valore (€)</th>
+                            <th>Peso %</th>
+                            <th>Azione</th>
+                        </tr>
+                    </thead>
+                    <tbody id="portfolio-tbody"></tbody>
+                </table>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 12px;">
+                💡 Puoi modificare le quote o i prezzi direttamente nelle caselle della tabella.
+            </p>
+        </div>
+
+        <!-- Grafico ad Anello -->
+        <div class="card">
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Asset Allocation (%)</h2>
+            <div class="chart-container">
+                <canvas id="doughnutChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 1: Registra Versamento PAC -->
+    <div class="modal" id="pacModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registra Versamento Bi-mensile</h3>
+                <span style="cursor:pointer;" onclick="closeModal('pacModal')">✕</span>
+            </div>
+            <div class="form-group">
+                <label>Seleziona Asset</label>
+                <select id="pac-asset-select"></select>
+            </div>
+            <div class="form-group">
+                <label>Importo Investito (€)</label>
+                <input type="number" id="pac-amount" step="any" placeholder="Es. 100">
+            </div>
+            <div class="form-group">
+                <label>Oppure Quote Esatte Acquistate</label>
+                <input type="number" id="pac-shares" step="any" placeholder="Es. 0.854">
+            </div>
+            <button class="btn btn-green" style="width:100%;" onclick="submitPacPurchase()">Aggiungi al Portafoglio</button>
+        </div>
+    </div>
+
+    <!-- Modal 2: Aggiungi Nuovo Asset -->
+    <div class="modal" id="assetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Aggiungi Nuovo Asset</h3>
+                <span style="cursor:pointer;" onclick="closeModal('assetModal')">✕</span>
+            </div>
+            <div class="form-group">
+                <label>Nome Asset</label>
+                <input type="text" id="new-name" placeholder="Es. S&P 500 ETF">
+            </div>
+            <div class="form-group">
+                <label>ISIN / Ticker</label>
+                <input type="text" id="new-isin" placeholder="Es. IE00B5BMR087">
+            </div>
+            <div class="form-group">
+                <label>Quote Iniziali Possedute</label>
+                <input type="number" id="new-quote" step="any" value="0">
+            </div>
+            <div class="form-group">
+                <label>Prezzo Attuale (€)</label>
+                <input type="number" id="new-price" step="any" placeholder="Es. 450.20">
+            </div>
+            <button class="btn" style="width:100%;" onclick="addNewAsset()">Salva Nuovo Asset</button>
+        </div>
+    </div>
+
+    <script>
+        const defaultAssets = [
+            { id: '1', name: 'Core MSCI World', isin: 'IE00B4L5Y983', quote: 10.104568, price: 128.59, color: '#3b82f6' },
+            { id: '2', name: 'Core MSCI EM IMI', isin: 'IE00BKM4GZ66', quote: 10.491813, price: 46.75, color: '#10b981' },
+            { id: '3', name: 'Eurozone Gov Bond', isin: 'IE00BH04GL39', quote: 0.0, price: 23.80, color: '#f59e0b' }
+        ];
+
+        let assets = JSON.parse(localStorage.getItem('pac_v2_assets')) || defaultAssets;
+        let chart = null;
+
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
+
+        function saveAndRefresh() {
+            localStorage.setItem('pac_v2_assets', JSON.stringify(assets));
+            render();
+        }
+
+        function render() {
+            const tbody = document.getElementById('portfolio-tbody');
+            const select = document.getElementById('pac-asset-select');
+            tbody.innerHTML = '';
+            select.innerHTML = '';
+
+            let totalPortfolio = 0;
+            assets.forEach(a => totalPortfolio += (a.quote * a.price));
+
+            document.getElementById('total-val').innerText = `€ ${totalPortfolio.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('total-assets-count').innerText = assets.length;
+
+            assets.forEach((a, i) => {
+                const totalAssetVal = a.quote * a.price;
+                const weight = totalPortfolio > 0 ? ((totalAssetVal / totalPortfolio) * 100).toFixed(1) : '0.0';
+
+                // Tbody Row
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${a.name}</strong><br><span style="font-size:0.7rem; color:var(--text-secondary);">${a.isin}</span></td>
+                    <td><input type="number" step="any" value="${a.quote}" onchange="updateAsset(${i}, 'quote', this.value)"></td>
+                    <td><input type="number" step="any" value="${a.price}" onchange="updateAsset(${i}, 'price', this.value)"></td>
+                    <td>€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td><strong>${weight}%</strong></td>
+                    <td><button class="btn btn-danger" onclick="deleteAsset(${i})">✕</button></td>
+                `;
+                tbody.appendChild(tr);
+
+                // Option for PAC Modal
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = `${a.name} (${a.isin})`;
+                select.appendChild(opt);
+            });
+
+            renderChart(totalPortfolio);
+        }
+
+        function updateAsset(index, key, val) {
+            assets[index][key] = parseFloat(val) || 0;
+            saveAndRefresh();
+        }
+
+        function deleteAsset(index) {
+            if (confirm(`Vuoi rimuovere ${assets[index].name} dal portafoglio?`)) {
+                assets.splice(index, 1);
+                saveAndRefresh();
+            }
+        }
+
+        function addNewAsset() {
+            const name = document.getElementById('new-name').value;
+            const isin = document.getElementById('new-isin').value;
+            const quote = parseFloat(document.getElementById('new-quote').value) || 0;
+            const price = parseFloat(document.getElementById('new-price').value) || 0;
+
+            if (!name) { alert('Inserisci il nome dell asset'); return; }
+
+            const color = colors[assets.length % colors.length];
+            assets.push({ id: Date.now().toString(), name, isin, quote, price, color });
+            
+            // Clear inputs
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-isin').value = '';
+            document.getElementById('new-quote').value = '0';
+            document.getElementById('new-price').value = '';
+
+            closeModal('assetModal');
+            saveAndRefresh();
+        }
+
+        function submitPacPurchase() {
+            const index = document.getElementById('pac-asset-select').value;
+            const amount = parseFloat(document.getElementById('pac-amount').value);
+            const shares = parseFloat(document.getElementById('pac-shares').value);
+
+            if (!assets[index]) return;
+
+            if (shares && shares > 0) {
+                assets[index].quote += shares;
+            } else if (amount && amount > 0) {
+                if (assets[index].price <= 0) {
+                    alert('Imposta prima il prezzo dell asset per calcolare le quote dall importo in Euro!');
+                    return;
+                }
+                const newShares = amount / assets[index].price;
+                assets[index].quote += newShares;
+            } else {
+                alert('Inserisci un importo in Euro o il numero di quote acquistate');
+                return;
+            }
+
+            document.getElementById('pac-amount').value = '';
+            document.getElementById('pac-shares').value = '';
+            closeModal('pacModal');
+            saveAndRefresh();
+        }
+
+        function renderChart(totalVal) {
+            const ctx = document.getElementById('doughnutChart').getContext('2d');
+            if (chart) chart.destroy();
+
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: assets.map(a => a.name),
+                    datasets: [{
+                        data: assets.map(a => a.quote * a.price),
+                        backgroundColor: assets.map((a, i) => a.color || colors[i % colors.length]),
+                        borderColor: '#1e293b',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#f8fafc', font: { family: 'Inter', size: 11 } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assets, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `backup_pac_${new Date().toISOString().slice(0,10)}.json`);
+            dlAnchor.click();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const importedAssets = JSON.parse(e.target.result);
+                    if (Array.isArray(importedAssets)) {
+                        assets = importedAssets;
+                        saveAndRefresh();
+                        alert('Backup ripristinato con successo!');
+                    }
+                } catch(err) {
+                    alert('Errore nel formato del file di backup.');
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        window.onload = render;
+    </script>
+</body>
+</html>
