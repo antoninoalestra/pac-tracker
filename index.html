@@ -19,7 +19,6 @@
         :root {
             --bg-color: #0b0f19;
             --card-bg: #151c2c;
-            --card-bg-hover: #1c263b;
             --accent-blue: #3b82f6;
             --accent-green: #10b981;
             --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -30,40 +29,51 @@
             --danger: #f43f5e;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
         body { 
             background-color: var(--bg-color); 
             color: var(--text-primary); 
-            padding: 16px; 
+            padding: 12px; 
             max-width: 1200px; 
             margin: 0 auto; 
-            padding-bottom: 90px; /* Spazio per la barra di navigazione inferiore su Mobile */
+            padding-bottom: 90px;
         }
 
         /* Header App-like */
         header { 
-            margin-bottom: 20px; 
+            margin-bottom: 16px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             flex-wrap: wrap; 
-            gap: 12px; 
+            gap: 10px; 
             background: var(--card-bg);
-            padding: 16px;
+            padding: 14px 16px;
             border-radius: 16px;
             border: 1px solid var(--border-color);
         }
         
-        h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
-        .subtitle { color: var(--text-secondary); font-size: 0.8rem; margin-top: 2px; }
+        h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
+        .subtitle { color: var(--text-secondary); font-size: 0.75rem; margin-top: 2px; }
         
         .status-badge { 
             background: rgba(16, 185, 129, 0.15); 
             color: #34d399; 
-            padding: 6px 12px; 
+            padding: 5px 10px; 
             border-radius: 20px; 
-            font-size: 0.75rem; 
+            font-size: 0.7rem; 
             font-weight: 600; 
             border: 1px solid rgba(16, 185, 129, 0.25); 
             display: inline-flex;
@@ -74,21 +84,22 @@
         /* Metric Cards Grid */
         .summary-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-            gap: 12px; 
-            margin-bottom: 20px; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px; 
+            margin-bottom: 16px; 
         }
         
         .card { 
             background-color: var(--card-bg); 
             border: 1px solid var(--border-color); 
             border-radius: 16px; 
-            padding: 18px; 
+            padding: 14px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
         }
         
-        .metric-title { color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; font-weight: 600; }
-        .metric-value { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; }
+        .metric-title { color: var(--text-secondary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; font-weight: 600; }
+        .metric-value { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
 
         /* Actions Toolbar Desktop */
         .btn-toolbar-desktop { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -100,11 +111,11 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(21, 28, 44, 0.92);
+            background: rgba(21, 28, 44, 0.94);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-top: 1px solid var(--border-color);
-            padding: 12px 16px;
+            padding: 10px 14px;
             gap: 10px;
             z-index: 99;
         }
@@ -113,7 +124,7 @@
             background: var(--accent-gradient); 
             color: white; 
             border: none; 
-            padding: 12px 18px; 
+            padding: 12px 16px; 
             border-radius: 12px; 
             cursor: pointer; 
             font-weight: 600; 
@@ -122,7 +133,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: transform 0.1s ease, opacity 0.2s ease;
+            transition: transform 0.1s ease;
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
         }
         
@@ -130,67 +141,95 @@
         .btn-green { background: var(--green-gradient); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
         .btn-danger { background-color: var(--danger); padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; border: none; color: white; cursor: pointer; font-weight: 600; }
 
-        .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        
         @media (min-width: 900px) { 
             .main-grid { grid-template-columns: 3fr 2fr; } 
             .btn-toolbar-desktop { display: flex; }
-            body { padding-bottom: 20px; }
+            .metric-value { font-size: 1.5rem; }
+            body { padding-bottom: 20px; padding: 20px; }
         }
+        
         @media (max-width: 899px) {
             .btn-toolbar-desktop { display: none; }
             .mobile-bottom-bar { display: flex; }
         }
 
         /* Responsive Table to Cards Transformation */
-        .responsive-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .responsive-table { width: 100%; border-collapse: collapse; }
         .responsive-table th { text-align: left; padding: 12px; color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
         .responsive-table td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
 
         @media (max-width: 768px) {
             .responsive-table, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr { 
                 display: block; 
+                width: 100%;
             }
             .responsive-table thead { display: none; }
+            
             .responsive-table tr { 
                 background: rgba(255, 255, 255, 0.02); 
                 border: 1px solid var(--border-color); 
-                border-radius: 12px; 
-                padding: 14px; 
+                border-radius: 14px; 
+                padding: 12px 14px; 
                 margin-bottom: 12px; 
             }
+            
             .responsive-table td { 
                 display: flex; 
                 justify-content: space-between; 
                 align-items: center; 
                 padding: 8px 0; 
-                border-bottom: 1px dashed var(--border-color); 
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+                gap: 12px;
             }
-            .responsive-table td:last-child { border-bottom: none; }
+            
+            .responsive-table td:last-child { 
+                border-bottom: none; 
+                padding-bottom: 0;
+                margin-top: 4px;
+            }
+            
             .responsive-table td::before { 
                 content: attr(data-label); 
                 color: var(--text-secondary); 
                 font-size: 0.75rem; 
                 font-weight: 600; 
                 text-transform: uppercase; 
+                flex-shrink: 0;
+            }
+
+            /* Inserimento del titolo asset in primo piano sulla scheda mobile */
+            .responsive-table td:first-child {
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 10px;
+                margin-bottom: 4px;
+            }
+            
+            .responsive-table td:first-child::before {
+                display: none !important;
+            }
+
+            .responsive-table td input {
+                width: 120px !important;
+                text-align: right;
+                padding: 6px 8px;
+                font-size: 0.85rem;
             }
         }
 
-        /* Form Inputs Optimized for Mobile Touch */
+        /* Form Inputs */
         input[type="number"], input[type="text"], select {
             background: #0b0f19; 
             border: 1px solid var(--border-color); 
             color: white; 
-            padding: 10px 12px; 
-            border-radius: 10px; 
-            width: 100%; 
-            font-size: 16px; /* Previene lo zoom automatico su iOS */
+            padding: 8px 10px; 
+            border-radius: 8px; 
+            font-size: 16px; /* Previene lo zoom automatico iOS */
             outline: none;
         }
-        input[type="number"]:focus, input[type="text"]:focus, select:focus {
-            border-color: var(--accent-blue);
-        }
 
-        .chart-container { position: relative; height: 280px; width: 100%; display: flex; justify-content: center; align-items: center; }
+        .chart-container { position: relative; height: 260px; width: 100%; display: flex; justify-content: center; align-items: center; }
 
         /* Modal Bottom-Sheet Mobile Style */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); justify-content: center; align-items: flex-end; z-index: 1000; }
@@ -199,24 +238,25 @@
         .modal-content { 
             background: var(--card-bg); 
             border: 1px solid var(--border-color); 
-            padding: 24px; 
-            border-radius: 24px 24px 0 0; 
+            padding: 20px; 
+            border-radius: 20px 20px 0 0; 
             width: 100%; 
             max-width: 480px; 
-            animation: slideUp 0.25s ease-out;
+            animation: slideUp 0.2s ease-out;
         }
-        @media (min-width: 600px) { .modal-content { border-radius: 20px; } }
+        @media (min-width: 600px) { .modal-content { border-radius: 18px; } }
 
         @keyframes slideUp {
             from { transform: translateY(100%); }
             to { transform: translateY(0); }
         }
 
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h3 { font-size: 1.1rem; font-weight: 700; }
-        .close-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-secondary); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-header h3 { font-size: 1rem; font-weight: 700; }
+        .close-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-secondary); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; }
     </style>
 </head>
 <body>
@@ -226,31 +266,31 @@
             <h1>PAC Portfolio</h1>
             <p class="subtitle">Sincronizzazione Cloud in tempo reale</p>
         </div>
-        <div class="status-badge" id="sync-status">🟢 Cloud Sincronizzato</div>
+        <div class="status-badge" id="sync-status">🟢 Connesso</div>
     </header>
 
-    <!-- Toolbar per schermi Desktop -->
+    <!-- Toolbar Desktop -->
     <div class="btn-toolbar-desktop">
         <button class="btn btn-green" onclick="openModal('pacModal')">+ Registra Versamento PAC</button>
         <button class="btn" onclick="openModal('assetModal')">+ Aggiungi Nuovo Asset</button>
     </div>
 
-    <!-- Summary Metrics Grid -->
+    <!-- Metriche Portafoglio -->
     <div class="summary-grid">
         <div class="card">
-            <div class="metric-title">Valore Portafoglio</div>
+            <div class="metric-title">Valore Totale</div>
             <div class="metric-value" id="total-val">€ 0,00</div>
         </div>
         <div class="card">
-            <div class="metric-title">Totale Investito</div>
+            <div class="metric-title">Tot. Investito</div>
             <div class="metric-value" id="total-invested">€ 0,00</div>
         </div>
     </div>
 
     <div class="main-grid">
-        <!-- Scheda / Tabella Asset -->
+        <!-- Schede Asset -->
         <div class="card">
-            <h2 style="font-size: 1rem; margin-bottom: 12px; font-weight:700;">Asset in Portafoglio</h2>
+            <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Asset in Portafoglio</h2>
             <div style="overflow-x: auto;">
                 <table class="responsive-table">
                     <thead>
@@ -270,16 +310,16 @@
 
         <!-- Grafico ad Anello -->
         <div class="card">
-            <h2 style="font-size: 1rem; margin-bottom: 12px; font-weight:700;">Asset Allocation (%)</h2>
+            <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Asset Allocation (%)</h2>
             <div class="chart-container">
                 <canvas id="doughnutChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Sezione Registro Storico Versamenti -->
-    <div class="card" style="margin-top: 20px;">
-        <h2 style="font-size: 1rem; margin-bottom: 12px; font-weight:700;">Storico Versamenti PAC</h2>
+    <!-- Storico Versamenti -->
+    <div class="card" style="margin-top: 16px;">
+        <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Storico Versamenti PAC</h2>
         <div style="overflow-x: auto;">
             <table class="responsive-table">
                 <thead>
@@ -297,7 +337,7 @@
         </div>
     </div>
 
-    <!-- Floating Action Bar per Smartphone -->
+    <!-- Toolbar Fluttuante Mobile -->
     <div class="mobile-bottom-bar">
         <button class="btn btn-green" style="flex:1;" onclick="openModal('pacModal')">+ Versamento</button>
         <button class="btn" style="flex:1;" onclick="openModal('assetModal')">+ Asset</button>
@@ -322,7 +362,7 @@
                 <label>Oppure Quote Esatte Acquistate</label>
                 <input type="number" id="pac-shares" step="any" placeholder="Es. 0.854">
             </div>
-            <button class="btn btn-green" style="width:100%; padding:14px; margin-top:8px;" onclick="submitPacPurchase()">Aggiungi al Portafoglio</button>
+            <button class="btn btn-green" style="width:100%; padding:12px; margin-top:8px;" onclick="submitPacPurchase()">Aggiungi al Portafoglio</button>
         </div>
     </div>
 
@@ -349,15 +389,13 @@
                 <label>Prezzo Attuale (€)</label>
                 <input type="number" id="new-price" step="any" placeholder="Es. 450.20">
             </div>
-            <button class="btn" style="width:100%; padding:14px; margin-top:8px;" onclick="addNewAsset()">Salva Asset</button>
+            <button class="btn" style="width:100%; padding:12px; margin-top:8px;" onclick="addNewAsset()">Salva Asset</button>
         </div>
     </div>
 
     <script>
-        // Registrazione del plugin ChartDataLabels per le percentuali
         Chart.register(ChartDataLabels);
 
-        // Configurazione Firebase integrata
         const firebaseConfig = {
             apiKey: "AIzaSyA8Gf2INUG1LRvdLFTnLPGU9-DnQG1da7M",
             authDomain: "pac-tracker-ad855.firebaseapp.com",
@@ -384,7 +422,6 @@
         let chart = null;
         const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-        // Caricamento Dati Cloud
         portfolioRef.on('value', (snapshot) => {
             const data = snapshot.val();
             assets = data ? data : defaultAssets;
@@ -398,10 +435,10 @@
         });
 
         function saveToCloud() {
-            document.getElementById('sync-status').innerText = '⏳ Salvataggio...';
+            document.getElementById('sync-status').innerText = '⏳ Salvo...';
             portfolioRef.set(assets);
             historyRef.set(history).then(() => {
-                document.getElementById('sync-status').innerText = '🟢 Cloud Sincronizzato';
+                document.getElementById('sync-status').innerText = '🟢 Connesso';
             });
         }
 
@@ -422,11 +459,14 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td data-label="Asset"><strong>${a.name}</strong><br><span style="font-size:0.7rem; color:var(--text-secondary);">${a.isin}</span></td>
+                    <td data-label="Asset">
+                        <strong>${a.name}</strong>
+                        <span style="font-size:0.75rem; color:var(--text-secondary); font-weight:normal;">${a.isin}</span>
+                    </td>
                     <td data-label="Quote"><input type="number" step="any" value="${a.quote}" onchange="updateAsset(${i}, 'quote', this.value)"></td>
                     <td data-label="Prezzo (€)"><input type="number" step="any" value="${a.price}" onchange="updateAsset(${i}, 'price', this.value)"></td>
-                    <td data-label="Valore (€)">€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td data-label="Peso %"><strong>${weight}%</strong></td>
+                    <td data-label="Valore (€)"><strong style="color:var(--text-primary);">€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                    <td data-label="Peso %"><span style="background:rgba(59, 130, 246, 0.15); color:#60a5fa; padding:2px 8px; border-radius:10px; font-weight:600;">${weight}%</span></td>
                     <td data-label="Azione"><button class="btn-danger" onclick="deleteAsset(${i})">Elimina</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -451,10 +491,10 @@
                 totalInvested += tx.amount;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td data-label="Data">${tx.date}</td>
-                    <td data-label="Asset"><strong>${tx.assetName}</strong></td>
+                    <td data-label="Data"><strong>${tx.date}</strong></td>
+                    <td data-label="Asset"><span style="color:var(--accent-blue); font-weight:600;">${tx.assetName}</span></td>
                     <td data-label="Importo (€)">€ ${tx.amount.toFixed(2)}</td>
-                    <td data-label="Quote Aggiunte">+${tx.shares.toFixed(4)}</td>
+                    <td data-label="Quote">+${tx.shares.toFixed(4)}</td>
                     <td data-label="Prezzo">€ ${tx.price.toFixed(2)}</td>
                     <td data-label="Azione"><button class="btn-danger" onclick="deleteTransaction('${tx.id}')">Cancella</button></td>
                 `;
@@ -479,7 +519,7 @@
                 addedShares = sharesInput;
                 investedAmount = sharesInput * price;
             } else if (amountInput && amountInput > 0) {
-                if (price <= 0) { alert('Imposta il prezzo dell asset prima!'); return; }
+                if (price <= 0) { alert('Imposta prima il prezzo!'); return; }
                 investedAmount = amountInput;
                 addedShares = amountInput / price;
             } else {
@@ -510,7 +550,7 @@
             const index = history.findIndex(h => h.id === id);
             if (index !== -1) {
                 const tx = history[index];
-                if (confirm(`Rimuovere il versamento di € ${tx.amount.toFixed(2)} per ${tx.assetName}? Verranno sottratte ${tx.shares.toFixed(4)} quote dal portafoglio.`)) {
+                if (confirm(`Rimuovere il versamento di € ${tx.amount.toFixed(2)} per ${tx.assetName}?`)) {
                     const asset = assets.find(a => a.isin === tx.assetIsin || a.name === tx.assetName);
                     if (asset) {
                         asset.quote = Math.max(0, asset.quote - tx.shares);
@@ -587,7 +627,7 @@
                             bodyColor: '#cbd5e1',
                             borderColor: 'rgba(255,255,255,0.1)',
                             borderWidth: 1,
-                            padding: 12,
+                            padding: 10,
                             callbacks: {
                                 label: function(context) {
                                     let val = context.parsed || 0;
