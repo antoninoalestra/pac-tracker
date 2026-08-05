@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard PAC Trade Republic</title>
-    <!-- Chart.js CDN -->
+    <!-- Chart.js & Plugin DataLabels CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
     <!-- Firebase SDK Compatibile -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -32,7 +34,7 @@
         .status-badge { background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 6px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3); }
 
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
         
         .metric-title { color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
         .metric-value { font-size: 1.6rem; font-weight: 700; }
@@ -53,7 +55,7 @@
             background: #0f172a; border: 1px solid var(--border-color); color: white; padding: 8px 10px; border-radius: 6px; width: 100%; font-size: 0.85rem;
         }
 
-        .chart-container { position: relative; height: 280px; width: 100%; display: flex; justify-content: center; align-items: center; }
+        .chart-container { position: relative; height: 300px; width: 100%; display: flex; justify-content: center; align-items: center; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: var(--card-bg); border: 1px solid var(--border-color); padding: 24px; border-radius: 12px; width: 100%; max-width: 450px; }
@@ -67,7 +69,7 @@
     <header>
         <div>
             <h1>Dashboard PAC Trade Republic</h1>
-            <p class="subtitle">Sincronizzazione Cloud in tempo reale</p>
+            <p class="subtitle">Sincronizzazione Cloud & Storico Transazioni</p>
         </div>
         <div class="status-badge" id="sync-status">☁️ Connesso al Cloud</div>
     </header>
@@ -78,17 +80,18 @@
     </div>
 
     <div class="summary-grid">
-        <div class="card">
+        <div class="card" style="margin-bottom:0;">
             <div class="metric-title">Valore Totale Portafoglio</div>
             <div class="metric-value" id="total-val">€ 0,00</div>
         </div>
-        <div class="card">
-            <div class="metric-title">Asset Totali</div>
-            <div class="metric-value" id="total-assets-count">0</div>
+        <div class="card" style="margin-bottom:0;">
+            <div class="metric-title">Totale Investito da PAC</div>
+            <div class="metric-value" id="total-invested">€ 0,00</div>
         </div>
     </div>
 
-    <div class="main-grid">
+    <div class="main-grid" style="margin-top:24px;">
+        <!-- Tabella Portafoglio -->
         <div class="card">
             <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Asset in Portafoglio</h2>
             <div style="overflow-x: auto;">
@@ -106,16 +109,34 @@
                     <tbody id="portfolio-tbody"></tbody>
                 </table>
             </div>
-            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 12px;">
-                💡 Puoi modificare quote e prezzi direttamente nelle caselle della tabella per aggiornare il valore.
-            </p>
         </div>
 
+        <!-- Grafico ad Anello con DataLabels -->
         <div class="card">
             <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Asset Allocation (%)</h2>
             <div class="chart-container">
                 <canvas id="doughnutChart"></canvas>
             </div>
+        </div>
+    </div>
+
+    <!-- Sezione Registro Storico Versamenti -->
+    <div class="card">
+        <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Storico Versamenti Registrati</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Asset</th>
+                        <th>Importo (€)</th>
+                        <th>Quote Aggiunte</th>
+                        <th>Prezzo Unitario</th>
+                        <th>Azione</th>
+                    </tr>
+                </thead>
+                <tbody id="history-tbody"></tbody>
+            </table>
         </div>
     </div>
 
@@ -170,7 +191,10 @@
     </div>
 
     <script>
-        // Configurazione Firebase integrata con le tue chiavi
+        // Registrar il plugin ChartDataLabels per i valori percentuali
+        Chart.register(ChartDataLabels);
+
+        // Configurazione Firebase integrata
         const firebaseConfig = {
             apiKey: "AIzaSyA8Gf2INUG1LRvdLFTnLPGU9-DnQG1da7M",
             authDomain: "pac-tracker-ad855.firebaseapp.com",
@@ -181,12 +205,11 @@
             appId: "1:48319574793:web:ccb30de959edaeec1599d8"
         };
 
-        // Inizializzazione Firebase Realtime Database
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const portfolioRef = db.ref('pac_portfolio');
+        const historyRef = db.ref('pac_history');
 
-        // Asset di partenza predefiniti
         const defaultAssets = [
             { id: '1', name: 'Core MSCI World', isin: 'IE00B4L5Y983', quote: 10.104568, price: 128.59, color: '#3b82f6' },
             { id: '2', name: 'Core MSCI EM IMI', isin: 'IE00BKM4GZ66', quote: 10.491813, price: 46.75, color: '#10b981' },
@@ -194,24 +217,27 @@
         ];
 
         let assets = [];
+        let history = [];
         let chart = null;
         const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-        // Sincronizzazione automatica dal Cloud
+        // Caricamento Dati Cloud
         portfolioRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                assets = data;
-            } else {
-                assets = defaultAssets;
-                saveToCloud();
-            }
+            assets = data ? data : defaultAssets;
             render();
+        });
+
+        historyRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            history = data ? Object.values(data) : [];
+            renderHistory();
         });
 
         function saveToCloud() {
             document.getElementById('sync-status').innerText = '⏳ Salvataggio...';
-            portfolioRef.set(assets).then(() => {
+            portfolioRef.set(assets);
+            historyRef.set(history).then(() => {
                 document.getElementById('sync-status').innerText = '☁️ Connesso al Cloud';
             });
         }
@@ -226,7 +252,6 @@
             assets.forEach(a => totalPortfolio += (a.quote * a.price));
 
             document.getElementById('total-val').innerText = `€ ${totalPortfolio.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('total-assets-count').innerText = assets.length;
 
             assets.forEach((a, i) => {
                 const totalAssetVal = a.quote * a.price;
@@ -252,13 +277,98 @@
             renderChart(totalPortfolio);
         }
 
+        function renderHistory() {
+            const tbody = document.getElementById('history-tbody');
+            tbody.innerHTML = '';
+            let totalInvested = 0;
+
+            // Mostra transazioni ordinate dalla più recente
+            const sortedHistory = [...history].reverse();
+
+            sortedHistory.forEach((tx) => {
+                totalInvested += tx.amount;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${tx.date}</td>
+                    <td><strong>${tx.assetName}</strong></td>
+                    <td>€ ${tx.amount.toFixed(2)}</td>
+                    <td>+${tx.shares.toFixed(4)}</td>
+                    <td>€ ${tx.price.toFixed(2)}</td>
+                    <td><button class="btn btn-danger" onclick="deleteTransaction('${tx.id}')">Cancella</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('total-invested').innerText = `€ ${totalInvested.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+
+        function submitPacPurchase() {
+            const index = document.getElementById('pac-asset-select').value;
+            const amountInput = parseFloat(document.getElementById('pac-amount').value);
+            const sharesInput = parseFloat(document.getElementById('pac-shares').value);
+
+            if (!assets[index]) return;
+
+            let addedShares = 0;
+            let investedAmount = 0;
+            const price = assets[index].price;
+
+            if (sharesInput && sharesInput > 0) {
+                addedShares = sharesInput;
+                investedAmount = sharesInput * price;
+            } else if (amountInput && amountInput > 0) {
+                if (price <= 0) { alert('Imposta il prezzo dell asset prima!'); return; }
+                investedAmount = amountInput;
+                addedShares = amountInput / price;
+            } else {
+                alert('Inserisci un importo o le quote'); return;
+            }
+
+            // Aggiorna Portafoglio
+            assets[index].quote += addedShares;
+
+            // Registra Transazione
+            const transaction = {
+                id: Date.now().toString(),
+                date: new Date().toLocaleDateString('it-IT'),
+                assetName: assets[index].name,
+                assetIsin: assets[index].isin,
+                amount: investedAmount,
+                shares: addedShares,
+                price: price
+            };
+
+            history.push(transaction);
+
+            document.getElementById('pac-amount').value = '';
+            document.getElementById('pac-shares').value = '';
+            closeModal('pacModal');
+            saveToCloud();
+        }
+
+        function deleteTransaction(id) {
+            const index = history.findIndex(h => h.id === id);
+            if (index !== -1) {
+                const tx = history[index];
+                if (confirm(`Rimuovere la transazione di € ${tx.amount.toFixed(2)} per ${tx.assetName}? Verranno sottratte ${tx.shares.toFixed(4)} quote dal portafoglio.`)) {
+                    // Storna quote dall'asset corrispondente
+                    const asset = assets.find(a => a.isin === tx.assetIsin || a.name === tx.assetName);
+                    if (asset) {
+                        asset.quote = Math.max(0, asset.quote - tx.shares);
+                    }
+                    history.splice(index, 1);
+                    saveToCloud();
+                }
+            }
+        }
+
         function updateAsset(index, key, val) {
             assets[index][key] = parseFloat(val) || 0;
             saveToCloud();
         }
 
         function deleteAsset(index) {
-            if (confirm(`Vuoi rimuovere ${assets[index].name} dal portafoglio?`)) {
+            if (confirm(`Rimuovere l'asset ${assets[index].name}?`)) {
                 assets.splice(index, 1);
                 saveToCloud();
             }
@@ -270,7 +380,7 @@
             const quote = parseFloat(document.getElementById('new-quote').value) || 0;
             const price = parseFloat(document.getElementById('new-price').value) || 0;
 
-            if (!name) { alert('Inserisci il nome dell asset'); return; }
+            if (!name) return;
 
             const color = colors[assets.length % colors.length];
             assets.push({ id: Date.now().toString(), name, isin, quote, price, color });
@@ -281,32 +391,6 @@
             document.getElementById('new-price').value = '';
 
             closeModal('assetModal');
-            saveToCloud();
-        }
-
-        function submitPacPurchase() {
-            const index = document.getElementById('pac-asset-select').value;
-            const amount = parseFloat(document.getElementById('pac-amount').value);
-            const shares = parseFloat(document.getElementById('pac-shares').value);
-
-            if (!assets[index]) return;
-
-            if (shares && shares > 0) {
-                assets[index].quote += shares;
-            } else if (amount && amount > 0) {
-                if (assets[index].price <= 0) {
-                    alert('Imposta il prezzo dell asset per calcolare le quote in Euro!');
-                    return;
-                }
-                assets[index].quote += (amount / assets[index].price);
-            } else {
-                alert('Inserisci un importo o il numero di quote acquistate');
-                return;
-            }
-
-            document.getElementById('pac-amount').value = '';
-            document.getElementById('pac-shares').value = '';
-            closeModal('pacModal');
             saveToCloud();
         }
 
@@ -329,9 +413,43 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
+                        // Percentuale sempre visibile sulle fette
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { family: 'Inter', weight: 'bold', size: 12 },
+                            formatter: (value, ctx) => {
+                                let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                if (sum === 0 || value === 0) return '';
+                                let percentage = (value * 100 / sum).toFixed(1) + '%';
+                                return percentage;
+                            }
+                        },
+                        // Hover Avanzato (Tooltip completo)
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    let val = context.parsed || 0;
+                                    let sum = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    let perc = sum > 0 ? ((val / sum) * 100).toFixed(1) : 0;
+                                    let a = assets[context.dataIndex];
+                                    return [
+                                        ` Valore: € ${val.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                                        ` Peso: ${perc}%`,
+                                        ` Quote: ${a ? a.quote.toFixed(4) : 0}`,
+                                        ` Prezzo: € ${a ? a.price.toFixed(2) : 0}`
+                                    ];
+                                }
+                            }
+                        },
                         legend: { position: 'bottom', labels: { color: '#f8fafc', font: { family: 'Inter', size: 11 } } }
                     },
-                    cutout: '70%'
+                    cutout: '65%'
                 }
             });
         }
