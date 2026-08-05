@@ -29,22 +29,23 @@
             --danger: #f43f5e;
         }
 
-        html, body {
-            overflow-x: hidden;
-            width: 100%;
-        }
-
-        * { 
+        *, *::before, *::after { 
             box-sizing: border-box; 
             margin: 0; 
             padding: 0; 
             font-family: 'Inter', sans-serif; 
-            -webkit-tap-highlight-color: transparent; 
+            -webkit-tap-highlight-color: transparent;
+            min-width: 0;
+        }
+
+        html, body {
+            overflow-x: hidden !important;
+            width: 100%;
+            background-color: var(--bg-color); 
+            color: var(--text-primary); 
         }
         
         body { 
-            background-color: var(--bg-color); 
-            color: var(--text-primary); 
             padding: 12px; 
             max-width: 1200px; 
             margin: 0 auto; 
@@ -63,6 +64,7 @@
             padding: 14px 16px;
             border-radius: 16px;
             border: 1px solid var(--border-color);
+            width: 100%;
         }
         
         h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
@@ -79,6 +81,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
 
         /* Metric Cards Grid */
@@ -87,6 +90,7 @@
             grid-template-columns: repeat(2, 1fr); 
             gap: 10px; 
             margin-bottom: 16px; 
+            width: 100%;
         }
         
         .card { 
@@ -95,11 +99,11 @@
             border-radius: 16px; 
             padding: 14px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            overflow: hidden;
+            width: 100%;
         }
         
-        .metric-title { color: var(--text-secondary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; font-weight: 600; }
-        .metric-value { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+        .metric-title { color: var(--text-secondary); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; font-weight: 600; }
+        .metric-value { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; word-break: break-all; }
 
         /* Actions Toolbar Desktop */
         .btn-toolbar-desktop { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -141,7 +145,7 @@
         .btn-green { background: var(--green-gradient); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
         .btn-danger { background-color: var(--danger); padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; border: none; color: white; cursor: pointer; font-weight: 600; }
 
-        .main-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 16px; width: 100%; }
         
         @media (min-width: 900px) { 
             .main-grid { grid-template-columns: 3fr 2fr; } 
@@ -155,7 +159,7 @@
             .mobile-bottom-bar { display: flex; }
         }
 
-        /* Responsive Table to Cards Transformation */
+        /* Structure Table / Mobile Cards */
         .responsive-table { width: 100%; border-collapse: collapse; }
         .responsive-table th { text-align: left; padding: 12px; color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
         .responsive-table td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
@@ -168,10 +172,10 @@
             .responsive-table thead { display: none; }
             
             .responsive-table tr { 
-                background: rgba(255, 255, 255, 0.02); 
+                background: rgba(255, 255, 255, 0.03); 
                 border: 1px solid var(--border-color); 
                 border-radius: 14px; 
-                padding: 12px 14px; 
+                padding: 14px; 
                 margin-bottom: 12px; 
             }
             
@@ -179,31 +183,34 @@
                 display: flex; 
                 justify-content: space-between; 
                 align-items: center; 
-                padding: 8px 0; 
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
-                gap: 12px;
+                padding: 6px 0; 
+                border-bottom: 1px solid rgba(255, 255, 255, 0.04); 
+                gap: 8px;
             }
             
             .responsive-table td:last-child { 
                 border-bottom: none; 
                 padding-bottom: 0;
-                margin-top: 4px;
+                margin-top: 6px;
             }
             
             .responsive-table td::before { 
                 content: attr(data-label); 
                 color: var(--text-secondary); 
-                font-size: 0.75rem; 
+                font-size: 0.72rem; 
                 font-weight: 600; 
                 text-transform: uppercase; 
                 flex-shrink: 0;
             }
 
-            /* Inserimento del titolo asset in primo piano sulla scheda mobile */
+            /* Titolo dell'asset in evidenza in cima alla scheda mobile */
             .responsive-table td:first-child {
                 border-bottom: 1px solid var(--border-color);
-                padding-bottom: 10px;
-                margin-bottom: 4px;
+                padding-bottom: 8px;
+                margin-bottom: 6px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
             }
             
             .responsive-table td:first-child::before {
@@ -211,14 +218,15 @@
             }
 
             .responsive-table td input {
-                width: 120px !important;
+                width: 110px !important;
+                max-width: 45% !important;
                 text-align: right;
                 padding: 6px 8px;
                 font-size: 0.85rem;
             }
         }
 
-        /* Form Inputs */
+        /* Inputs */
         input[type="number"], input[type="text"], select {
             background: #0b0f19; 
             border: 1px solid var(--border-color); 
@@ -227,11 +235,12 @@
             border-radius: 8px; 
             font-size: 16px; /* Previene lo zoom automatico iOS */
             outline: none;
+            width: 100%;
         }
 
         .chart-container { position: relative; height: 260px; width: 100%; display: flex; justify-content: center; align-items: center; }
 
-        /* Modal Bottom-Sheet Mobile Style */
+        /* Modali Bottom-Sheet per Mobile */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); justify-content: center; align-items: flex-end; z-index: 1000; }
         @media (min-width: 600px) { .modal { align-items: center; } }
 
@@ -256,7 +265,6 @@
         .close-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-secondary); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
-        .form-group input, .form-group select { width: 100%; }
     </style>
 </head>
 <body>
@@ -291,7 +299,7 @@
         <!-- Schede Asset -->
         <div class="card">
             <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Asset in Portafoglio</h2>
-            <div style="overflow-x: auto;">
+            <div style="width: 100%;">
                 <table class="responsive-table">
                     <thead>
                         <tr>
@@ -320,7 +328,7 @@
     <!-- Storico Versamenti -->
     <div class="card" style="margin-top: 16px;">
         <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Storico Versamenti PAC</h2>
-        <div style="overflow-x: auto;">
+        <div style="width: 100%;">
             <table class="responsive-table">
                 <thead>
                     <tr>
@@ -460,13 +468,13 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td data-label="Asset">
-                        <strong>${a.name}</strong>
-                        <span style="font-size:0.75rem; color:var(--text-secondary); font-weight:normal;">${a.isin}</span>
+                        <div><strong>${a.name}</strong></div>
+                        <span style="font-size:0.7rem; color:var(--text-secondary); font-weight:normal;">${a.isin}</span>
                     </td>
                     <td data-label="Quote"><input type="number" step="any" value="${a.quote}" onchange="updateAsset(${i}, 'quote', this.value)"></td>
                     <td data-label="Prezzo (€)"><input type="number" step="any" value="${a.price}" onchange="updateAsset(${i}, 'price', this.value)"></td>
                     <td data-label="Valore (€)"><strong style="color:var(--text-primary);">€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
-                    <td data-label="Peso %"><span style="background:rgba(59, 130, 246, 0.15); color:#60a5fa; padding:2px 8px; border-radius:10px; font-weight:600;">${weight}%</span></td>
+                    <td data-label="Peso %"><span style="background:rgba(59, 130, 246, 0.15); color:#60a5fa; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">${weight}%</span></td>
                     <td data-label="Azione"><button class="btn-danger" onclick="deleteAsset(${i})">Elimina</button></td>
                 `;
                 tbody.appendChild(tr);
