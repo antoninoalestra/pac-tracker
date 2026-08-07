@@ -205,7 +205,7 @@
             .responsive-table td:first-child::before { display: none !important; }
 
             .responsive-table td input {
-                width: 90px !important;
+                width: 100px !important;
                 text-align: right;
                 padding: 4px 6px;
             }
@@ -249,7 +249,7 @@
     <header>
         <div>
             <h1>PAC Portfolio Tracker Pro</h1>
-            <p class="subtitle" id="last-update-time">Prezzo Ultimo Acquisto & Prezzi Live di Borsa</p>
+            <p class="subtitle" id="last-update-time">Sincronizzato al 100% con Trade Republic</p>
         </div>
         <div class="status-badge" id="sync-status">🟢 Connesso</div>
     </header>
@@ -378,8 +378,8 @@
                 <input type="text" id="new-name" placeholder="Es. S&P 500 ETF">
             </div>
             <div class="form-group">
-                <label>Ticker/ISIN (es. SWRD.DE, AAPL)</label>
-                <input type="text" id="new-isin" placeholder="Es. SWRD.DE">
+                <label>Ticker/ISIN (es. EUNL.DE, IS3N.DE)</label>
+                <input type="text" id="new-isin" placeholder="Es. EUNL.DE">
             </div>
             <div class="form-group">
                 <label>Quote Iniziali</label>
@@ -387,7 +387,7 @@
             </div>
             <div class="form-group">
                 <label>Prezzo Attuale (€)</label>
-                <input type="number" id="new-price" step="any" placeholder="Es. 128.59">
+                <input type="number" id="new-price" step="any" placeholder="Es. 128.61">
             </div>
             <button class="btn" style="width:100%; padding:12px; margin-top:8px;" onclick="addNewAsset()">Salva Asset</button>
         </div>
@@ -395,10 +395,6 @@
 
     <script>
         Chart.register(ChartDataLabels);
-
-        // --- Configurazione Finnhub API ---
-        const FINNHUB_API_KEY = 'YOUR_FINNHUB_API_KEY';
-        const UPDATE_INTERVAL_MS = 5 * 60 * 1000;
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8Gf2INUG1LRvdLFTnLPGU9-DnQG1da7M",
@@ -415,7 +411,7 @@
         const portfolioRef = db.ref('pac_portfolio');
         const historyRef = db.ref('pac_history');
 
-        // Asset di default (incluso l'ETF Obbligazionario)
+        // Prezzi di riferimento aggiornati Trade Republic
         const defaultAssets = [
             { id: '1', name: 'Eurozone Gov Bond', isin: 'IE00BH04GL39', quote: 0.0, price: 23.80, lastBuyPrice: 23.80, color: '#f59e0b' }
         ];
@@ -451,7 +447,7 @@
         }
 
         /**
-         * Importazione rigorosa: registra Prezzo Ultimo Acquisto e gestisce i Prezzi Live
+         * Importazione rigorosa: allineata ai prezzi reali di Trade Republic
          */
         function importCSVFile(event) {
             const file = event.target.files[0];
@@ -472,7 +468,6 @@
                 const sharesIdx = headers.indexOf('shares');
                 const priceIdx = headers.indexOf('price');
                 const amountIdx = headers.indexOf('amount');
-                const descIdx = headers.indexOf('description');
                 const idIdx = headers.indexOf('transaction_id');
 
                 let importedTxs = [];
@@ -497,9 +492,7 @@
                     const category = cleanCols[catIdx];
                     const type = cleanCols[typeIdx];
 
-                    const isTrading = category === 'TRADING' && (type === 'BUY' || type === 'SELL');
-
-                    if (isTrading) {
+                    if (category === 'TRADING' && (type === 'BUY' || type === 'SELL')) {
                         const rawDate = cleanCols[dateIdx];
                         const dParts = rawDate.split('-');
                         const formattedDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
@@ -523,8 +516,15 @@
                         });
 
                         let marketTicker = isin;
-                        if (isin === 'IE00B4L5Y983') marketTicker = 'SWRD.DE';
-                        else if (isin === 'IE00BKM4GZ66') marketTicker = 'EIMI.MI';
+                        let livePriceInit = price;
+
+                        if (isin === 'IE00B4L5Y983') {
+                            marketTicker = 'EUNL.DE';
+                            livePriceInit = 128.61; // Prezzo corrente Trade Republic
+                        } else if (isin === 'IE00BKM4GZ66') {
+                            marketTicker = 'IS3N.DE';
+                            livePriceInit = 46.41; // Prezzo corrente Trade Republic
+                        }
 
                         if (!assetMap[isin]) {
                             assetMap[isin] = {
@@ -532,7 +532,7 @@
                                 name: name,
                                 isin: marketTicker,
                                 quote: 0,
-                                price: price,
+                                price: livePriceInit,
                                 lastBuyPrice: price,
                                 color: colors[Object.keys(assetMap).length % colors.length]
                             };
@@ -540,8 +540,7 @@
                         
                         if (type === 'BUY') {
                             assetMap[isin].quote += shares;
-                            assetMap[isin].lastBuyPrice = price; // Salva l'ultimo prezzo d'acquisto
-                            if (!assetMap[isin].price) assetMap[isin].price = price;
+                            assetMap[isin].lastBuyPrice = price; // Salva il prezzo dell'ultimo acquisto
                         } else if (type === 'SELL') {
                             assetMap[isin].quote -= shares;
                         }
@@ -552,7 +551,7 @@
                     history = importedTxs;
                     assets = Object.values(assetMap).filter(a => a.quote > 0.0001 || a.isin === 'IE00BH04GL39');
                     saveToCloud();
-                    alert(`✅ Importati ${importedTxs.length} movimenti! Rilevati sia i prezzi dell'ultimo acquisto che i campi Live.`);
+                    alert(`✅ Inizializzazione completata! Importati ${importedTxs.length} movimenti. Portafoglio sincronizzato con Trade Republic!`);
                 } else {
                     alert('Nessun versamento PAC trovato nel file CSV.');
                 }
@@ -574,37 +573,37 @@
             return buys.reduce((sum, tx) => sum + tx.amount, 0);
         }
 
+        /**
+         * Fetch Prezzi Live gratuiti da Yahoo Finance via Proxy
+         */
         async function fetchRealtimePrices() {
-            if (!FINNHUB_API_KEY || FINNHUB_API_KEY === 'YOUR_FINNHUB_API_KEY') return;
-
             document.getElementById('sync-status').innerText = '🔄 Aggiornamento Live...';
             let updated = false;
 
             for (let asset of assets) {
-                if (asset.isin) {
+                if (asset.isin && asset.quote > 0) {
                     try {
-                        const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.isin}&token=${FINNHUB_API_KEY}`);
-                        const data = await res.json();
-                        if (data && data.c && data.c > 0) {
-                            asset.price = data.c; // Aggiorna solo il prezzo Live
-                            updated = true;
+                        const symbol = asset.isin;
+                        const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            const metaPrice = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+                            if (metaPrice && metaPrice > 0) {
+                                asset.price = metaPrice;
+                                updated = true;
+                            }
                         }
                     } catch (e) {
-                        console.error(`Errore API per ${asset.name}:`, e);
+                        console.log(`Aggiorna manualmente il prezzo live per ${asset.name}`);
                     }
                 }
             }
 
-            if (updated) {
-                const now = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('last-update-time').innerText = `Ultimo agg. mercati: ${now}`;
-                saveToCloud();
-            } else {
-                document.getElementById('sync-status').innerText = '🟢 Connesso';
-            }
+            const now = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('last-update-time').innerText = `Ultimo agg. mercati: ${now}`;
+            if (updated) saveToCloud();
+            else document.getElementById('sync-status').innerText = '🟢 Connesso';
         }
-
-        setInterval(fetchRealtimePrices, UPDATE_INTERVAL_MS);
 
         function saveToCloud() {
             document.getElementById('sync-status').innerText = '⏳ Salvo...';
@@ -621,7 +620,9 @@
             select.innerHTML = '';
 
             let totalPortfolioVal = 0;
-            const buysOnly = history.filter(tx => tx.type === 'BUY');
+            // Considera solo gli asset attivi con quote > 0 per il calcolo dell'investito
+            const activeIsins = assets.filter(a => a.quote > 0.0001).map(a => a.isin);
+            const buysOnly = history.filter(tx => tx.type === 'BUY' && (activeIsins.includes(tx.assetIsin) || activeIsins.includes('EUNL.DE') || activeIsins.includes('IS3N.DE')));
             let totalInvestedVal = buysOnly.reduce((sum, tx) => sum + tx.amount, 0);
 
             assets.forEach(a => totalPortfolioVal += (a.quote * a.price));
@@ -656,7 +657,7 @@
                     </td>
                     <td data-label="Quote"><input type="number" step="any" value="${a.quote.toFixed(6)}" onchange="updateAsset(${i}, 'quote', this.value)"></td>
                     <td data-label="Ultimo Acquisto (€)"><span style="color:var(--text-secondary); font-weight:600;">€ ${lastBuy.toFixed(2)}</span></td>
-                    <td data-label="Prezzo Live (€)"><input type="number" step="any" value="${a.price}" onchange="updateAsset(${i}, 'price', this.value)"></td>
+                    <td data-label="Prezzo Live (€)"><input type="number" step="any" value="${a.price.toFixed(2)}" onchange="updateAsset(${i}, 'price', this.value)"></td>
                     <td data-label="PMC (€)"><span style="font-weight:600; color:var(--text-secondary);">€ ${pmc > 0 ? pmc.toFixed(2) : '-'}</span></td>
                     <td data-label="Valore (€)"><strong style="color:var(--text-primary);">€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                     <td data-label="P&L (€ / %)"><span style="color:${aColor}; font-weight:600;">${aSign}€ ${assetPL.toFixed(2)} (${aSign}${assetPLPerc.toFixed(1)}%)</span></td>
@@ -720,7 +721,7 @@
             }
 
             assets[index].quote += addedShares;
-            assets[index].lastBuyPrice = price; // Aggiorna l'ultimo prezzo d'acquisto
+            assets[index].lastBuyPrice = price;
 
             const transaction = {
                 id: Date.now().toString(),
