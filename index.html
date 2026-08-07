@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard PAC Trade Republic Pro</title>
+    <title>Trade Republic PAC Tracker Pro</title>
     
     <!-- Chart.js & Plugin DataLabels CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,28 +13,32 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: #151c2c;
+            --bg-color: #080c14;
+            --card-bg: #121824;
+            --card-border: rgba(255, 255, 255, 0.06);
+            --card-hover: #172030;
             --accent-blue: #3b82f6;
             --accent-green: #10b981;
-            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            --green-gradient: linear-gradient(135deg, #10b981 0%, #047857 100%);
-            --text-primary: #f8fafc;
+            --accent-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            --green-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --orange-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            --text-primary: #ffffff;
             --text-secondary: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.08);
+            --text-muted: #64748b;
             --danger: #f43f5e;
             --success: #10b981;
+            --badge-bg: rgba(16, 185, 129, 0.12);
         }
 
         *, *::before, *::after { 
             box-sizing: border-box; 
             margin: 0; 
             padding: 0; 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -46,68 +50,68 @@
         }
         
         body { 
-            padding: 12px; 
+            padding: 16px; 
             max-width: 1200px; 
             margin: 0 auto; 
-            padding-bottom: 90px;
+            padding-bottom: 100px;
         }
 
-        /* Header */
+        /* Header App Stile Trade Republic */
         header { 
-            margin-bottom: 16px; 
+            margin-bottom: 20px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             flex-wrap: wrap; 
-            gap: 10px; 
+            gap: 12px; 
             background: var(--card-bg);
-            padding: 14px 16px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
             width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         
-        h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
-        .subtitle { color: var(--text-secondary); font-size: 0.75rem; margin-top: 2px; }
+        .header-title h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary); }
+        .header-title p { color: var(--text-secondary); font-size: 0.78rem; margin-top: 2px; font-weight: 500; }
         
         .status-badge { 
-            background: rgba(16, 185, 129, 0.15); 
+            background: rgba(16, 185, 129, 0.12); 
             color: #34d399; 
-            padding: 5px 10px; 
+            padding: 6px 12px; 
             border-radius: 20px; 
-            font-size: 0.7rem; 
+            font-size: 0.75rem; 
             font-weight: 600; 
             border: 1px solid rgba(16, 185, 129, 0.25); 
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            white-space: nowrap;
         }
 
-        /* Cards Summary */
+        /* Cards Summary Top */
         .summary-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
-            gap: 12px; 
-            margin-bottom: 16px; 
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+            gap: 14px; 
+            margin-bottom: 20px; 
             width: 100%;
         }
         
-        .card { 
+        .summary-card { 
             background-color: var(--card-bg); 
-            border: 1px solid var(--border-color); 
-            border-radius: 16px; 
-            padding: 16px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            width: 100%;
-            overflow: hidden;
+            border: 1px solid var(--card-border); 
+            border-radius: 20px; 
+            padding: 18px 20px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            transition: transform 0.15s ease, border-color 0.15s ease;
         }
+        .summary-card:hover { border-color: rgba(255, 255, 255, 0.15); }
         
-        .metric-title { color: var(--text-secondary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; font-weight: 600; }
-        .metric-value { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; }
+        .metric-title { color: var(--text-secondary); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 700; }
+        .metric-value { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
 
         /* Toolbar Buttons */
-        .btn-toolbar-desktop { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn-toolbar-desktop { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
         
         .mobile-bottom-bar {
             display: none;
@@ -115,10 +119,11 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(21, 28, 44, 0.95);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid var(--border-color);
-            padding: 10px 14px;
+            background: rgba(18, 24, 36, 0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--card-border);
+            padding: 12px 16px;
             gap: 10px;
             z-index: 99;
         }
@@ -127,31 +132,32 @@
             background: var(--accent-gradient); 
             color: white; 
             border: none; 
-            padding: 10px 16px; 
-            border-radius: 12px; 
+            padding: 12px 18px; 
+            border-radius: 14px; 
             cursor: pointer; 
-            font-weight: 600; 
+            font-weight: 700; 
             font-size: 0.85rem; 
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: transform 0.1s ease;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
         }
         
         .btn:active { transform: scale(0.97); }
-        .btn-green { background: var(--green-gradient); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
-        .btn-secondary { background: rgba(255,255,255,0.08); box-shadow: none; }
-        .btn-orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25); }
-        .btn-danger { background-color: var(--danger); padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; border: none; color: white; cursor: pointer; font-weight: 600; }
+        .btn-green { background: var(--green-gradient); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
+        .btn-orange { background: var(--orange-gradient); box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3); }
+        .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text-primary); box-shadow: none; border: 1px solid var(--card-border); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+        .btn-danger { background-color: rgba(244, 63, 94, 0.15); color: var(--danger); padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; border: 1px solid rgba(244, 63, 94, 0.3); font-weight: 700; cursor: pointer; }
+        .btn-danger:hover { background-color: var(--danger); color: white; }
 
-        .main-grid { display: grid; grid-template-columns: 1fr; gap: 16px; width: 100%; }
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; }
         
         @media (min-width: 992px) { 
             .main-grid { grid-template-columns: 1fr 380px; } 
             .btn-toolbar-desktop { display: flex; }
-            body { padding: 20px; }
         }
         
         @media (max-width: 991px) {
@@ -159,156 +165,174 @@
             .mobile-bottom-bar { display: flex; }
         }
 
-        /* Tabella Layout */
-        .table-wrapper { width: 100%; overflow-x: auto; }
-        .responsive-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .responsive-table th { padding: 12px 10px; color: var(--text-secondary); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
-        .responsive-table td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; vertical-align: middle; }
-
-        @media (max-width: 768px) {
-            .responsive-table, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr { 
-                display: block; 
-                width: 100%;
-            }
-            .responsive-table thead { display: none; }
-            
-            .responsive-table tr { 
-                background: rgba(255, 255, 255, 0.02); 
-                border: 1px solid var(--border-color); 
-                border-radius: 14px; 
-                padding: 12px; 
-                margin-bottom: 12px; 
-            }
-            
-            .responsive-table td { 
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
-                padding: 6px 0; 
-                border-bottom: 1px solid rgba(255, 255, 255, 0.04); 
-            }
-            
-            .responsive-table td:last-child { border-bottom: none; margin-top: 4px; }
-            .responsive-table td::before { 
-                content: attr(data-label); 
-                color: var(--text-secondary); 
-                font-size: 0.72rem; 
-                font-weight: 600; 
-                text-transform: uppercase; 
-            }
-
-            .responsive-table td:first-child {
-                border-bottom: 1px solid var(--border-color);
-                padding-bottom: 8px;
-                margin-bottom: 6px;
-            }
-            .responsive-table td:first-child::before { display: none !important; }
-
-            .responsive-table td input {
-                width: 100px !important;
-                text-align: right;
-                padding: 4px 6px;
-            }
-        }
-
-        input[type="number"], input[type="text"], select {
-            background: #0b0f19; 
-            border: 1px solid var(--border-color); 
-            color: white; 
-            padding: 6px 8px; 
-            border-radius: 8px; 
-            font-size: 0.85rem; 
-            outline: none;
+        /* Asset List Cards Design */
+        .section-card {
+            background-color: var(--card-bg); 
+            border: 1px solid var(--card-border); 
+            border-radius: 20px; 
+            padding: 20px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
             width: 100%;
         }
 
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; }
+
+        /* Card Singolo Asset */
+        .asset-item-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        .asset-item-card:hover {
+            background: var(--card-hover);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .asset-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+
+        .asset-info { display: flex; flex-direction: column; gap: 4px; }
+        .asset-name { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+        .asset-ticker-badge { display: flex; align-items: center; gap: 8px; }
+        .ticker-tag { font-size: 0.72rem; color: var(--text-secondary); font-weight: 600; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px; }
+        .weight-tag { font-size: 0.72rem; color: #60a5fa; font-weight: 700; background: rgba(59, 130, 246, 0.15); padding: 2px 8px; border-radius: 6px; }
+
+        .asset-values { text-align: right; display: flex; flex-direction: column; gap: 2px; }
+        .asset-total-val { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); }
+        .asset-pl-val { font-size: 0.82rem; font-weight: 700; }
+
+        /* Griglia Sub-Metriche Asset */
+        .asset-details-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .asset-details-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        }
+
+        .detail-box { display: flex; flex-direction: column; gap: 2px; }
+        .detail-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .detail-value { font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); }
+
+        .inline-input {
+            background: #080c14 !important;
+            border: 1px solid var(--card-border) !important;
+            color: white !important;
+            padding: 3px 6px !important;
+            border-radius: 6px !important;
+            font-size: 0.82rem !important;
+            font-weight: 700 !important;
+            width: 100% !important;
+            max-width: 90px !important;
+            outline: none;
+        }
+        .inline-input:focus { border-color: var(--accent-blue) !important; }
+
+        .asset-actions { display: flex; justify-content: flex-end; }
+
+        /* Chart Container */
         .chart-container { position: relative; height: 260px; width: 100%; }
 
+        /* Tabella Storico */
+        .responsive-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .responsive-table th { padding: 12px 10px; color: var(--text-muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--card-border); }
+        .responsive-table td { padding: 12px 10px; border-bottom: 1px solid var(--card-border); font-size: 0.85rem; vertical-align: middle; }
+
         /* Modali */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); justify-content: center; align-items: flex-end; z-index: 1000; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); justify-content: center; align-items: flex-end; z-index: 1000; }
         @media (min-width: 600px) { .modal { align-items: center; } }
 
         .modal-content { 
             background: var(--card-bg); 
-            border: 1px solid var(--border-color); 
-            padding: 20px; 
-            border-radius: 20px 20px 0 0; 
+            border: 1px solid var(--card-border); 
+            padding: 24px; 
+            border-radius: 24px 24px 0 0; 
             width: 100%; 
             max-width: 480px; 
         }
-        @media (min-width: 600px) { .modal-content { border-radius: 18px; } }
+        @media (min-width: 600px) { .modal-content { border-radius: 20px; } }
 
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .close-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-secondary); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .modal-header h3 { font-size: 1.05rem; font-weight: 800; }
+        .close-btn { background: rgba(255,255,255,0.06); border: none; color: var(--text-secondary); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <header>
-        <div>
-            <h1>PAC Portfolio Tracker Pro</h1>
-            <p class="subtitle" id="last-update-time">Sincronizzato al 100% con Trade Republic</p>
+        <div class="header-title">
+            <h1>Trade Republic PAC Tracker</h1>
+            <p id="last-update-time">Prezzi di Mercato Live & Storico Esecuzioni</p>
         </div>
         <div class="status-badge" id="sync-status">🟢 Connesso</div>
     </header>
 
-    <!-- Input Nascosto per Importare il file CSV -->
+    <!-- Input File CSV Nascosto -->
     <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="importCSVFile(event)">
 
     <!-- Toolbar Desktop -->
     <div class="btn-toolbar-desktop">
-        <button class="btn btn-green" onclick="openModal('pacModal')">+ Registra Versamento PAC</button>
+        <button class="btn btn-green" onclick="openModal('pacModal')">+ Registra Versamento</button>
         <button class="btn btn-orange" onclick="triggerCSVSelect()">📥 Importa CSV Trade Republic</button>
         <button class="btn" onclick="openModal('assetModal')">+ Aggiungi Asset</button>
-        <button class="btn btn-secondary" onclick="fetchRealtimePrices()">🔄 Aggiorna Prezzi Mercato</button>
+        <button class="btn btn-secondary" onclick="fetchRealtimePrices()">🔄 Aggiorna Prezzi Live</button>
         <button class="btn btn-secondary" style="color:var(--danger);" onclick="resetAllData()">🧹 Reset a 0</button>
     </div>
 
     <!-- Metriche Top Cards -->
     <div class="summary-grid">
-        <div class="card">
+        <div class="summary-card">
             <div class="metric-title">Valore Totale PAC</div>
             <div class="metric-value" id="total-val">€ 0,00</div>
         </div>
-        <div class="card">
+        <div class="summary-card">
             <div class="metric-title">Totale Investito PAC</div>
             <div class="metric-value" id="total-invested">€ 0,00</div>
         </div>
-        <div class="card">
+        <div class="summary-card">
             <div class="metric-title">Profit / Loss Totale</div>
             <div class="metric-value" id="total-pl">€ 0,00 (+0.00%)</div>
         </div>
     </div>
 
     <div class="main-grid">
-        <!-- Scheda Tabella Asset -->
-        <div class="card">
-            <h2 style="font-size: 0.95rem; margin-bottom: 12px; font-weight:700;">Asset in Portafoglio</h2>
-            <div class="table-wrapper">
-                <table class="responsive-table">
-                    <thead>
-                        <tr>
-                            <th>Asset / Ticker</th>
-                            <th>Quote</th>
-                            <th>Ultimo Acquisto (€)</th>
-                            <th>Prezzo Live (€)</th>
-                            <th>PMC (€)</th>
-                            <th>Valore (€)</th>
-                            <th>P&L (€ / %)</th>
-                            <th>Peso %</th>
-                            <th>Azione</th>
-                        </tr>
-                    </thead>
-                    <tbody id="portfolio-tbody"></tbody>
-                </table>
+        <!-- Lista Asset a Schede -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">Asset in Portafoglio</div>
             </div>
+            <div id="assets-list-container"></div>
         </div>
 
         <!-- Donut Chart Allocation -->
-        <div class="card">
-            <h2 style="font-size: 0.95rem; margin-bottom: 12px; font-weight:700;">Asset Allocation (%)</h2>
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">Asset Allocation (%)</div>
+            </div>
             <div class="chart-container">
                 <canvas id="doughnutChart"></canvas>
             </div>
@@ -316,9 +340,11 @@
     </div>
 
     <!-- Storico Versamenti -->
-    <div class="card" style="margin-top: 16px;">
-        <h2 style="font-size: 0.95rem; margin-bottom: 12px; font-weight:700;">Storico Versamenti PAC</h2>
-        <div class="table-wrapper">
+    <div class="section-card" style="margin-top: 20px;">
+        <div class="section-header">
+            <div class="section-title">Storico Versamenti PAC</div>
+        </div>
+        <div style="width:100%; overflow-x:auto;">
             <table class="responsive-table">
                 <thead>
                     <tr>
@@ -362,7 +388,7 @@
                 <label>Oppure Quote Esatte Acquistate</label>
                 <input type="number" id="pac-shares" step="any" placeholder="Es. 0.854">
             </div>
-            <button class="btn btn-green" style="width:100%; padding:12px; margin-top:8px;" onclick="submitPacPurchase()">Aggiungi al Portafoglio</button>
+            <button class="btn btn-green" style="width:100%; padding:14px; margin-top:8px;" onclick="submitPacPurchase()">Aggiungi al Portafoglio</button>
         </div>
     </div>
 
@@ -389,7 +415,7 @@
                 <label>Prezzo Attuale (€)</label>
                 <input type="number" id="new-price" step="any" placeholder="Es. 128.61">
             </div>
-            <button class="btn" style="width:100%; padding:12px; margin-top:8px;" onclick="addNewAsset()">Salva Asset</button>
+            <button class="btn" style="width:100%; padding:14px; margin-top:8px;" onclick="addNewAsset()">Salva Asset</button>
         </div>
     </div>
 
@@ -411,7 +437,6 @@
         const portfolioRef = db.ref('pac_portfolio');
         const historyRef = db.ref('pac_history');
 
-        // Prezzi di riferimento aggiornati Trade Republic
         const defaultAssets = [
             { id: '1', name: 'Eurozone Gov Bond', isin: 'IE00BH04GL39', quote: 0.0, price: 23.80, lastBuyPrice: 23.80, color: '#f59e0b' }
         ];
@@ -419,7 +444,7 @@
         let assets = [];
         let history = [];
         let doughnutChart = null;
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+        const colors = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
 
         portfolioRef.on('value', (snapshot) => {
             const data = snapshot.val();
@@ -446,9 +471,6 @@
             }
         }
 
-        /**
-         * Importazione rigorosa: allineata ai prezzi reali di Trade Republic
-         */
         function importCSVFile(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -520,10 +542,10 @@
 
                         if (isin === 'IE00B4L5Y983') {
                             marketTicker = 'EUNL.DE';
-                            livePriceInit = 128.61; // Prezzo corrente Trade Republic
+                            livePriceInit = 128.61;
                         } else if (isin === 'IE00BKM4GZ66') {
                             marketTicker = 'IS3N.DE';
-                            livePriceInit = 46.41; // Prezzo corrente Trade Republic
+                            livePriceInit = 46.41;
                         }
 
                         if (!assetMap[isin]) {
@@ -540,7 +562,7 @@
                         
                         if (type === 'BUY') {
                             assetMap[isin].quote += shares;
-                            assetMap[isin].lastBuyPrice = price; // Salva il prezzo dell'ultimo acquisto
+                            assetMap[isin].lastBuyPrice = price;
                         } else if (type === 'SELL') {
                             assetMap[isin].quote -= shares;
                         }
@@ -551,7 +573,7 @@
                     history = importedTxs;
                     assets = Object.values(assetMap).filter(a => a.quote > 0.0001 || a.isin === 'IE00BH04GL39');
                     saveToCloud();
-                    alert(`✅ Inizializzazione completata! Importati ${importedTxs.length} movimenti. Portafoglio sincronizzato con Trade Republic!`);
+                    alert(`✅ Inizializzazione completata! Importati ${importedTxs.length} movimenti dal file CSV.`);
                 } else {
                     alert('Nessun versamento PAC trovato nel file CSV.');
                 }
@@ -573,9 +595,6 @@
             return buys.reduce((sum, tx) => sum + tx.amount, 0);
         }
 
-        /**
-         * Fetch Prezzi Live gratuiti da Yahoo Finance via Proxy
-         */
         async function fetchRealtimePrices() {
             document.getElementById('sync-status').innerText = '🔄 Aggiornamento Live...';
             let updated = false;
@@ -614,25 +633,21 @@
         }
 
         function render() {
-            const tbody = document.getElementById('portfolio-tbody');
+            const container = document.getElementById('assets-list-container');
             const select = document.getElementById('pac-asset-select');
-            tbody.innerHTML = '';
+            container.innerHTML = '';
             select.innerHTML = '';
-        
+
             let totalPortfolioVal = 0;
-        
-            // 1. Identifica gli ISIN degli asset attivi (con quote > 0)
             const activeIsins = assets.filter(a => a.quote > 0.0001).map(a => a.isin);
-        
-            // 2. Calcola il Totale Investito SOLO per gli asset attualmente attivi nel PAC
-            const activeBuysOnly = history.filter(tx => tx.type === 'BUY' && (activeIsins.includes(tx.assetIsin) || activeIsins.includes('EUNL.DE') || activeIsins.includes('IS3N.DE') || activeIsins.includes('IE00B4L5Y983') || activeIsins.includes('IE00BKM4GZ66')));
-            let totalInvestedVal = activeBuysOnly.reduce((sum, tx) => sum + tx.amount, 0);
-        
+            const buysOnly = history.filter(tx => tx.type === 'BUY' && (activeIsins.includes(tx.assetIsin) || activeIsins.includes('EUNL.DE') || activeIsins.includes('IS3N.DE') || activeIsins.includes('IE00B4L5Y983') || activeIsins.includes('IE00BKM4GZ66')));
+            let totalInvestedVal = buysOnly.reduce((sum, tx) => sum + tx.amount, 0);
+
             assets.forEach(a => totalPortfolioVal += (a.quote * a.price));
-        
+
             const totalPL = totalPortfolioVal - totalInvestedVal;
             const totalPLPerc = totalInvestedVal > 0 ? (totalPL / totalInvestedVal) * 100 : 0;
-        
+
             document.getElementById('total-val').innerText = `€ ${totalPortfolioVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('total-invested').innerText = `€ ${totalInvestedVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             
@@ -640,8 +655,7 @@
             const sign = totalPL >= 0 ? '+' : '';
             plElem.style.color = totalPL >= 0 ? 'var(--success)' : 'var(--danger)';
             plElem.innerText = `${sign}€ ${totalPL.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${sign}${totalPLPerc.toFixed(2)}%)`;
-        
-            // Renderizza la tabella degli asset
+
             assets.forEach((a, i) => {
                 const totalAssetVal = a.quote * a.price;
                 const weight = totalPortfolioVal > 0 ? ((totalAssetVal / totalPortfolioVal) * 100).toFixed(1) : '0.0';
@@ -652,33 +666,57 @@
                 const aSign = assetPL >= 0 ? '+' : '';
                 const aColor = assetPL >= 0 ? 'var(--success)' : 'var(--danger)';
                 const lastBuy = a.lastBuyPrice || a.price;
-        
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td data-label="Asset">
-                        <div><strong>${a.name}</strong></div>
-                        <span style="font-size:0.7rem; color:var(--text-secondary);">${a.isin}</span>
-                    </td>
-                    <td data-label="Quote"><input type="number" step="any" value="${a.quote.toFixed(6)}" onchange="updateAsset(${i}, 'quote', this.value)"></td>
-                    <td data-label="Ultimo Acquisto (€)"><span style="color:var(--text-secondary); font-weight:600;">€ ${lastBuy.toFixed(2)}</span></td>
-                    <td data-label="Prezzo Live (€)"><input type="number" step="any" value="${a.price.toFixed(2)}" onchange="updateAsset(${i}, 'price', this.value)"></td>
-                    <td data-label="PMC (€)"><span style="font-weight:600; color:var(--text-secondary);">€ ${pmc > 0 ? pmc.toFixed(2) : '-'}</span></td>
-                    <td data-label="Valore (€)"><strong style="color:var(--text-primary);">€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
-                    <td data-label="P&L (€ / %)"><span style="color:${aColor}; font-weight:600;">${aSign}€ ${assetPL.toFixed(2)} (${aSign}${assetPLPerc.toFixed(1)}%)</span></td>
-                    <td data-label="Peso %"><span style="background:rgba(59, 130, 246, 0.15); color:#60a5fa; padding:2px 6px; border-radius:8px; font-weight:600; font-size:0.75rem;">${weight}%</span></td>
-                    <td data-label="Azione"><button class="btn-danger" onclick="deleteAsset(${i})">Elimina</button></td>
+
+                // Nuova Scheda Asset Elegante
+                const card = document.createElement('div');
+                card.className = 'asset-item-card';
+                card.innerHTML = `
+                    <div class="asset-top-row">
+                        <div class="asset-info">
+                            <div class="asset-name">${a.name}</div>
+                            <div class="asset-ticker-badge">
+                                <span class="ticker-tag">${a.isin}</span>
+                                <span class="weight-tag">${weight}%</span>
+                            </div>
+                        </div>
+                        <div class="asset-values">
+                            <div class="asset-total-val">€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                            <div class="asset-pl-val" style="color:${aColor};">${aSign}€ ${assetPL.toFixed(2)} (${aSign}${assetPLPerc.toFixed(1)}%)</div>
+                        </div>
+                    </div>
+                    <div class="asset-details-grid">
+                        <div class="detail-box">
+                            <span class="detail-label">Quote</span>
+                            <input type="number" class="inline-input" step="any" value="${a.quote.toFixed(6)}" onchange="updateAsset(${i}, 'quote', this.value)">
+                        </div>
+                        <div class="detail-box">
+                            <span class="detail-label">Prezzo Live (€)</span>
+                            <input type="number" class="inline-input" step="any" value="${a.price.toFixed(2)}" onchange="updateAsset(${i}, 'price', this.value)">
+                        </div>
+                        <div class="detail-box">
+                            <span class="detail-label">Ultimo Acq. (€)</span>
+                            <span class="detail-value">€ ${lastBuy.toFixed(2)}</span>
+                        </div>
+                        <div class="detail-box">
+                            <span class="detail-label">PMC (€)</span>
+                            <span class="detail-value">€ ${pmc > 0 ? pmc.toFixed(2) : '-'}</span>
+                        </div>
+                    </div>
+                    <div class="asset-actions">
+                        <button class="btn-danger" onclick="deleteAsset(${i})">Elimina</button>
+                    </div>
                 `;
-                tbody.appendChild(tr);
-        
+                container.appendChild(card);
+
                 const opt = document.createElement('option');
                 opt.value = i;
                 opt.innerText = `${a.name} (${a.isin})`;
                 select.appendChild(opt);
             });
-        
+
             renderDoughnutChart();
         }
-        
+
         function renderHistory() {
             const tbody = document.getElementById('history-tbody');
             tbody.innerHTML = '';
@@ -690,13 +728,13 @@
                 const typeBadge = isSell ? '<span style="color:var(--danger); font-weight:bold;">VENDITA</span>' : '<span style="color:var(--success); font-weight:bold;">ACQUISTO</span>';
 
                 tr.innerHTML = `
-                    <td data-label="Data"><strong>${tx.date}</strong></td>
-                    <td data-label="Asset"><span style="color:var(--accent-blue); font-weight:600;">${tx.assetName}</span></td>
-                    <td data-label="Tipo">${typeBadge}</td>
-                    <td data-label="Importo (€)">€ ${tx.amount.toFixed(2)}</td>
-                    <td data-label="Quote">${isSell ? '' : '+'}${tx.shares.toFixed(6)}</td>
-                    <td data-label="Prezzo Unitario">€ ${tx.price.toFixed(2)}</td>
-                    <td data-label="Azione"><button class="btn-danger" onclick="deleteTransaction('${tx.id}')">Cancella</button></td>
+                    <td><strong>${tx.date}</strong></td>
+                    <td><span style="color:var(--accent-blue); font-weight:600;">${tx.assetName}</span></td>
+                    <td>${typeBadge}</td>
+                    <td>€ ${tx.amount.toFixed(2)}</td>
+                    <td>${isSell ? '' : '+'}${tx.shares.toFixed(6)}</td>
+                    <td>€ ${tx.price.toFixed(2)}</td>
+                    <td><button class="btn-danger" onclick="deleteTransaction('${tx.id}')">Cancella</button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -806,7 +844,7 @@
                     datasets: [{
                         data: activeAssets.map(a => a.quote * a.price),
                         backgroundColor: activeAssets.map((a, i) => a.color || colors[i % colors.length]),
-                        borderColor: '#151c2c',
+                        borderColor: '#121824',
                         borderWidth: 3
                     }]
                 },
@@ -825,7 +863,7 @@
                         },
                         legend: { position: 'bottom', labels: { color: '#f8fafc', font: { family: 'Inter', size: 11 } } }
                     },
-                    cutout: '65%'
+                    cutout: '68%'
                 }
             });
         }
