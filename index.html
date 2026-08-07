@@ -249,7 +249,7 @@
     <header>
         <div>
             <h1>PAC Portfolio Tracker Pro</h1>
-            <p class="subtitle" id="last-update-time">Replicazione Trade Republic da Zero</p>
+            <p class="subtitle" id="last-update-time">Prezzo Ultimo Acquisto & Prezzi Live di Borsa</p>
         </div>
         <div class="status-badge" id="sync-status">🟢 Connesso</div>
     </header>
@@ -292,7 +292,8 @@
                         <tr>
                             <th>Asset / Ticker</th>
                             <th>Quote</th>
-                            <th>Prezzo (€)</th>
+                            <th>Ultimo Acquisto (€)</th>
+                            <th>Prezzo Live (€)</th>
                             <th>PMC (€)</th>
                             <th>Valore (€)</th>
                             <th>P&L (€ / %)</th>
@@ -323,8 +324,9 @@
                     <tr>
                         <th>Data</th>
                         <th>Asset</th>
+                        <th>Tipo</th>
                         <th>Importo (€)</th>
-                        <th>Quote Aggiunte</th>
+                        <th>Quote</th>
                         <th>Prezzo Unitario</th>
                         <th>Azione</th>
                     </tr>
@@ -413,9 +415,9 @@
         const portfolioRef = db.ref('pac_portfolio');
         const historyRef = db.ref('pac_history');
 
-        // Asset di default con quote a 0
+        // Asset di default (incluso l'ETF Obbligazionario)
         const defaultAssets = [
-            { id: '1', name: 'Eurozone Gov Bond', isin: 'IE00BH04GL39', quote: 0.0, price: 23.80, color: '#f59e0b' }
+            { id: '1', name: 'Eurozone Gov Bond', isin: 'IE00BH04GL39', quote: 0.0, price: 23.80, lastBuyPrice: 23.80, color: '#f59e0b' }
         ];
 
         let assets = [];
@@ -449,7 +451,7 @@
         }
 
         /**
-         * Importazione rigorosa: RESETTA prima a 0 e poi calcola SOLO i versamenti PAC
+         * Importazione rigorosa: registra Prezzo Ultimo Acquisto e gestisce i Prezzi Live
          */
         function importCSVFile(event) {
             const file = event.target.files[0];
@@ -476,13 +478,13 @@
                 let importedTxs = [];
                 let assetMap = {};
 
-                // Inizializza l'ETF Obbligazionario
                 assetMap['IE00BH04GL39'] = {
                     id: 'bond_default',
                     name: 'Eurozone Gov Bond',
                     isin: 'IE00BH04GL39',
                     quote: 0.0,
                     price: 23.80,
+                    lastBuyPrice: 23.80,
                     color: '#f59e0b'
                 };
 
@@ -494,12 +496,10 @@
 
                     const category = cleanCols[catIdx];
                     const type = cleanCols[typeIdx];
-                    const description = cleanCols[descIdx] || '';
 
-                    // FILTRO: Importa SOLO i versamenti del PAC (Savings Plan Execution)
-                    const isPAC = category === 'TRADING' && type === 'BUY' && description.includes('Savings plan execution');
+                    const isTrading = category === 'TRADING' && (type === 'BUY' || type === 'SELL');
 
-                    if (isPAC) {
+                    if (isTrading) {
                         const rawDate = cleanCols[dateIdx];
                         const dParts = rawDate.split('-');
                         const formattedDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
@@ -517,12 +517,11 @@
                             assetName: name,
                             assetIsin: isin,
                             amount: amount,
-                            shares: shares,
+                            shares: type === 'SELL' ? -shares : shares,
                             price: price,
-                            type: 'BUY'
+                            type: type
                         });
 
-                        // Ticker per aggiornamento mercati in tempo reale
                         let marketTicker = isin;
                         if (isin === 'IE00B4L5Y983') marketTicker = 'SWRD.DE';
                         else if (isin === 'IE00BKM4GZ66') marketTicker = 'EIMI.MI';
@@ -534,19 +533,26 @@
                                 isin: marketTicker,
                                 quote: 0,
                                 price: price,
+                                lastBuyPrice: price,
                                 color: colors[Object.keys(assetMap).length % colors.length]
                             };
                         }
-                        assetMap[isin].quote += shares;
-                        assetMap[isin].price = price;
+                        
+                        if (type === 'BUY') {
+                            assetMap[isin].quote += shares;
+                            assetMap[isin].lastBuyPrice = price; // Salva l'ultimo prezzo d'acquisto
+                            if (!assetMap[isin].price) assetMap[isin].price = price;
+                        } else if (type === 'SELL') {
+                            assetMap[isin].quote -= shares;
+                        }
                     }
                 }
 
                 if (importedTxs.length > 0) {
                     history = importedTxs;
-                    assets = Object.values(assetMap);
+                    assets = Object.values(assetMap).filter(a => a.quote > 0.0001 || a.isin === 'IE00BH04GL39');
                     saveToCloud();
-                    alert(`✅ Portafoglio azzerato e ricalcolato da 0! Importati ${importedTxs.length} versamenti PAC reali.`);
+                    alert(`✅ Importati ${importedTxs.length} movimenti! Rilevati sia i prezzi dell'ultimo acquisto che i campi Live.`);
                 } else {
                     alert('Nessun versamento PAC trovato nel file CSV.');
                 }
@@ -556,20 +562,22 @@
 
         function getAssetPMC(isin, name) {
             const txs = history.filter(tx => tx.assetIsin === isin || tx.assetName === name);
-            const spent = txs.reduce((sum, tx) => sum + tx.amount, 0);
-            const shares = txs.reduce((sum, tx) => sum + tx.shares, 0);
+            const buys = txs.filter(tx => tx.type === 'BUY');
+            const spent = buys.reduce((sum, tx) => sum + tx.amount, 0);
+            const shares = buys.reduce((sum, tx) => sum + tx.shares, 0);
             return shares > 0 ? (spent / shares) : 0;
         }
 
         function getAssetTotalSpent(isin, name) {
             const txs = history.filter(tx => tx.assetIsin === isin || tx.assetName === name);
-            return txs.reduce((sum, tx) => sum + tx.amount, 0);
+            const buys = txs.filter(tx => tx.type === 'BUY');
+            return buys.reduce((sum, tx) => sum + tx.amount, 0);
         }
 
         async function fetchRealtimePrices() {
             if (!FINNHUB_API_KEY || FINNHUB_API_KEY === 'YOUR_FINNHUB_API_KEY') return;
 
-            document.getElementById('sync-status').innerText = '🔄 Aggiornamento...';
+            document.getElementById('sync-status').innerText = '🔄 Aggiornamento Live...';
             let updated = false;
 
             for (let asset of assets) {
@@ -578,7 +586,7 @@
                         const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.isin}&token=${FINNHUB_API_KEY}`);
                         const data = await res.json();
                         if (data && data.c && data.c > 0) {
-                            asset.price = data.c;
+                            asset.price = data.c; // Aggiorna solo il prezzo Live
                             updated = true;
                         }
                     } catch (e) {
@@ -613,7 +621,8 @@
             select.innerHTML = '';
 
             let totalPortfolioVal = 0;
-            let totalInvestedVal = history.reduce((sum, tx) => sum + tx.amount, 0);
+            const buysOnly = history.filter(tx => tx.type === 'BUY');
+            let totalInvestedVal = buysOnly.reduce((sum, tx) => sum + tx.amount, 0);
 
             assets.forEach(a => totalPortfolioVal += (a.quote * a.price));
 
@@ -637,6 +646,7 @@
                 const assetPLPerc = pmc > 0 ? ((a.price - pmc) / pmc) * 100 : 0;
                 const aSign = assetPL >= 0 ? '+' : '';
                 const aColor = assetPL >= 0 ? 'var(--success)' : 'var(--danger)';
+                const lastBuy = a.lastBuyPrice || a.price;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -645,7 +655,8 @@
                         <span style="font-size:0.7rem; color:var(--text-secondary);">${a.isin}</span>
                     </td>
                     <td data-label="Quote"><input type="number" step="any" value="${a.quote.toFixed(6)}" onchange="updateAsset(${i}, 'quote', this.value)"></td>
-                    <td data-label="Prezzo (€)"><input type="number" step="any" value="${a.price}" onchange="updateAsset(${i}, 'price', this.value)"></td>
+                    <td data-label="Ultimo Acquisto (€)"><span style="color:var(--text-secondary); font-weight:600;">€ ${lastBuy.toFixed(2)}</span></td>
+                    <td data-label="Prezzo Live (€)"><input type="number" step="any" value="${a.price}" onchange="updateAsset(${i}, 'price', this.value)"></td>
                     <td data-label="PMC (€)"><span style="font-weight:600; color:var(--text-secondary);">€ ${pmc > 0 ? pmc.toFixed(2) : '-'}</span></td>
                     <td data-label="Valore (€)"><strong style="color:var(--text-primary);">€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                     <td data-label="P&L (€ / %)"><span style="color:${aColor}; font-weight:600;">${aSign}€ ${assetPL.toFixed(2)} (${aSign}${assetPLPerc.toFixed(1)}%)</span></td>
@@ -670,12 +681,16 @@
 
             sortedHistory.forEach((tx) => {
                 const tr = document.createElement('tr');
+                const isSell = tx.type === 'SELL';
+                const typeBadge = isSell ? '<span style="color:var(--danger); font-weight:bold;">VENDITA</span>' : '<span style="color:var(--success); font-weight:bold;">ACQUISTO</span>';
+
                 tr.innerHTML = `
                     <td data-label="Data"><strong>${tx.date}</strong></td>
                     <td data-label="Asset"><span style="color:var(--accent-blue); font-weight:600;">${tx.assetName}</span></td>
+                    <td data-label="Tipo">${typeBadge}</td>
                     <td data-label="Importo (€)">€ ${tx.amount.toFixed(2)}</td>
-                    <td data-label="Quote">+${tx.shares.toFixed(6)}</td>
-                    <td data-label="Prezzo">€ ${tx.price.toFixed(2)}</td>
+                    <td data-label="Quote">${isSell ? '' : '+'}${tx.shares.toFixed(6)}</td>
+                    <td data-label="Prezzo Unitario">€ ${tx.price.toFixed(2)}</td>
                     <td data-label="Azione"><button class="btn-danger" onclick="deleteTransaction('${tx.id}')">Cancella</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -705,6 +720,7 @@
             }
 
             assets[index].quote += addedShares;
+            assets[index].lastBuyPrice = price; // Aggiorna l'ultimo prezzo d'acquisto
 
             const transaction = {
                 id: Date.now().toString(),
@@ -729,7 +745,7 @@
             const index = history.findIndex(h => h.id === id);
             if (index !== -1) {
                 const tx = history[index];
-                if (confirm(`Rimuovere il versamento di € ${tx.amount.toFixed(2)} per ${tx.assetName}?`)) {
+                if (confirm(`Rimuovere la transazione di € ${tx.amount.toFixed(2)} per ${tx.assetName}?`)) {
                     const asset = assets.find(a => a.isin === tx.assetIsin || a.name === tx.assetName);
                     if (asset) {
                         asset.quote = Math.max(0, asset.quote - tx.shares);
@@ -761,7 +777,7 @@
             if (!name) return;
 
             const color = colors[assets.length % colors.length];
-            assets.push({ id: Date.now().toString(), name, isin, quote, price, color });
+            assets.push({ id: Date.now().toString(), name, isin, quote, price, lastBuyPrice: price, color });
             
             document.getElementById('new-name').value = '';
             document.getElementById('new-isin').value = '';
