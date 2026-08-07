@@ -410,10 +410,6 @@
     <script>
         Chart.register(ChartDataLabels);
 
-        // --- Configurazione Finnhub API Key ---
-        const FINNHUB_API_KEY = 'd9qv5ghr01qnlhckii0gd9qv5ghr01qnlhckii10';
-        const UPDATE_INTERVAL_MS = 5 * 60 * 1000;
-
         const firebaseConfig = {
             apiKey: "AIzaSyA8Gf2INUG1LRvdLFTnLPGU9-DnQG1da7M",
             authDomain: "pac-tracker-ad855.firebaseapp.com",
@@ -584,7 +580,7 @@
         }
 
         /**
-         * Chiamata API Live avanzata via Finnhub e Proxy Yahoo
+         * Chiamata API Live Sicura e Senza Errore CORS
          */
         async function fetchRealtimePrices() {
             document.getElementById('sync-status').innerText = '🔄 Aggiornamento Live...';
@@ -594,37 +590,20 @@
                 if (asset.quote > 0) {
                     let priceFetched = null;
 
-                    if (FINNHUB_API_KEY && FINNHUB_API_KEY !== 'YOUR_FINNHUB_API_KEY') {
-                        try {
-                            const symbol = asset.isin;
-                            const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`);
-                            if (res.ok) {
-                                const data = await res.json();
-                                if (data && data.c && data.c > 0) {
-                                    priceFetched = data.c;
-                                }
+                    // Chiamata via Proxy CORS per evitare net::ERR_FAILED in console
+                    try {
+                        const symbol = asset.isin;
+                        const corsProxy = `https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
+                        const res = await fetch(corsProxy);
+                        if (res.ok) {
+                            const data = await res.json();
+                            const metaPrice = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+                            if (metaPrice && metaPrice > 0) {
+                                priceFetched = metaPrice;
                             }
-                        } catch (e) {
-                            console.log(`Finnhub error for ${asset.name}`);
                         }
-                    }
-
-                    if (!priceFetched) {
-                        try {
-                            const symbol = asset.isin;
-                            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`)}`;
-                            const res = await fetch(proxyUrl);
-                            if (res.ok) {
-                                const wrapper = await res.json();
-                                const data = JSON.parse(wrapper.contents);
-                                const metaPrice = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-                                if (metaPrice && metaPrice > 0) {
-                                    priceFetched = metaPrice;
-                                }
-                            }
-                        } catch (e) {
-                            console.log(`Yahoo proxy error for ${asset.name}`);
-                        }
+                    } catch (e) {
+                        // Silenzioso in caso di blocco di rete sporadico
                     }
 
                     if (priceFetched && priceFetched > 0) {
@@ -658,7 +637,6 @@
 
             let totalPortfolioVal = 0;
 
-            // Filtro rigoroso: Totale Investito SOLO per gli asset ATTIVI in portafoglio
             const activeIsins = assets.filter(a => a.quote > 0.0001).map(a => a.isin);
             const activeBuysOnly = history.filter(tx => tx.type === 'BUY' && (
                 activeIsins.includes(tx.assetIsin) || 
