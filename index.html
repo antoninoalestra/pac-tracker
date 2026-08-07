@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard PAC Trade Republic</title>
+    <title>Dashboard PAC Trade Republic Pro</title>
     
     <!-- Chart.js & Plugin DataLabels CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -27,6 +27,7 @@
             --text-secondary: #94a3b8;
             --border-color: rgba(255, 255, 255, 0.08);
             --danger: #f43f5e;
+            --success: #10b981;
         }
 
         *, *::before, *::after { 
@@ -52,7 +53,7 @@
             padding-bottom: 90px;
         }
 
-        /* Header App-like */
+        /* Header */
         header { 
             margin-bottom: 16px; 
             display: flex; 
@@ -91,6 +92,10 @@
             gap: 10px; 
             margin-bottom: 16px; 
             width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .summary-grid { grid-template-columns: repeat(3, 1fr); }
         }
         
         .card { 
@@ -143,6 +148,7 @@
         
         .btn:active { transform: scale(0.97); }
         .btn-green { background: var(--green-gradient); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
+        .btn-secondary { background: rgba(255,255,255,0.08); box-shadow: none; }
         .btn-danger { background-color: var(--danger); padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; border: none; color: white; cursor: pointer; font-weight: 600; }
 
         .main-grid { display: grid; grid-template-columns: 1fr; gap: 16px; width: 100%; }
@@ -150,7 +156,7 @@
         @media (min-width: 900px) { 
             .main-grid { grid-template-columns: 3fr 2fr; } 
             .btn-toolbar-desktop { display: flex; }
-            .metric-value { font-size: 1.5rem; }
+            .metric-value { font-size: 1.4rem; }
             body { padding-bottom: 20px; padding: 20px; }
         }
         
@@ -159,7 +165,7 @@
             .mobile-bottom-bar { display: flex; }
         }
 
-        /* Structure Table / Mobile Cards */
+        /* Responsive Table */
         .responsive-table { width: 100%; border-collapse: collapse; }
         .responsive-table th { text-align: left; padding: 12px; color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
         .responsive-table td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
@@ -203,7 +209,6 @@
                 flex-shrink: 0;
             }
 
-            /* Titolo dell'asset in evidenza in cima alla scheda mobile */
             .responsive-table td:first-child {
                 border-bottom: 1px solid var(--border-color);
                 padding-bottom: 8px;
@@ -233,14 +238,14 @@
             color: white; 
             padding: 8px 10px; 
             border-radius: 8px; 
-            font-size: 16px; /* Previene lo zoom automatico iOS */
+            font-size: 16px; 
             outline: none;
             width: 100%;
         }
 
         .chart-container { position: relative; height: 260px; width: 100%; display: flex; justify-content: center; align-items: center; }
 
-        /* Modali Bottom-Sheet per Mobile */
+        /* Modali Bottom-Sheet */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); justify-content: center; align-items: flex-end; z-index: 1000; }
         @media (min-width: 600px) { .modal { align-items: center; } }
 
@@ -271,8 +276,8 @@
 
     <header>
         <div>
-            <h1>PAC Portfolio</h1>
-            <p class="subtitle">Sincronizzazione Cloud in tempo reale</p>
+            <h1>PAC Portfolio Tracker Pro</h1>
+            <p class="subtitle" id="last-update-time">Sincronizzazione Cloud in tempo reale</p>
         </div>
         <div class="status-badge" id="sync-status">🟢 Connesso</div>
     </header>
@@ -281,6 +286,7 @@
     <div class="btn-toolbar-desktop">
         <button class="btn btn-green" onclick="openModal('pacModal')">+ Registra Versamento PAC</button>
         <button class="btn" onclick="openModal('assetModal')">+ Aggiungi Nuovo Asset</button>
+        <button class="btn btn-secondary" onclick="fetchRealtimePrices()">🔄 Aggiorna Prezzi</button>
     </div>
 
     <!-- Metriche Portafoglio -->
@@ -293,6 +299,10 @@
             <div class="metric-title">Tot. Investito</div>
             <div class="metric-value" id="total-invested">€ 0,00</div>
         </div>
+        <div class="card">
+            <div class="metric-title">Profit / Loss Totale</div>
+            <div class="metric-value" id="total-pl">€ 0,00 (0.00%)</div>
+        </div>
     </div>
 
     <div class="main-grid">
@@ -304,9 +314,11 @@
                     <thead>
                         <tr>
                             <th>Asset / ISIN</th>
-                            <th style="width: 100px;">Quote</th>
-                            <th style="width: 100px;">Prezzo (€)</th>
+                            <th style="width: 80px;">Quote</th>
+                            <th style="width: 90px;">Prezzo (€)</th>
+                            <th style="width: 90px;">PMC (€)</th>
                             <th>Valore (€)</th>
+                            <th>P&L (€ / %)</th>
                             <th>Peso %</th>
                             <th>Azione</th>
                         </tr>
@@ -316,12 +328,20 @@
             </div>
         </div>
 
-        <!-- Grafico ad Anello -->
+        <!-- Grafico ad Anello Allocation -->
         <div class="card">
             <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Asset Allocation (%)</h2>
             <div class="chart-container">
                 <canvas id="doughnutChart"></canvas>
             </div>
+        </div>
+    </div>
+
+    <!-- Grafico Evoluzione Storica -->
+    <div class="card" style="margin-top: 16px;">
+        <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Andamento Portafoglio (Investito vs Valore di Mercato)</h2>
+        <div class="chart-container" style="height: 300px;">
+            <canvas id="lineChart"></canvas>
         </div>
     </div>
 
@@ -349,6 +369,7 @@
     <div class="mobile-bottom-bar">
         <button class="btn btn-green" style="flex:1;" onclick="openModal('pacModal')">+ Versamento</button>
         <button class="btn" style="flex:1;" onclick="openModal('assetModal')">+ Asset</button>
+        <button class="btn btn-secondary" onclick="fetchRealtimePrices()">🔄</button>
     </div>
 
     <!-- Modal 1: Registra Versamento PAC -->
@@ -386,8 +407,8 @@
                 <input type="text" id="new-name" placeholder="Es. S&P 500 ETF">
             </div>
             <div class="form-group">
-                <label>ISIN / Ticker</label>
-                <input type="text" id="new-isin" placeholder="Es. IE00B5BMR087">
+                <label>ISIN / Ticker (es. SWRD.DE o AAPL)</label>
+                <input type="text" id="new-isin" placeholder="Es. IE00B5BMR087 o EIMI.MI">
             </div>
             <div class="form-group">
                 <label>Quote Iniziali Possedute</label>
@@ -403,6 +424,10 @@
 
     <script>
         Chart.register(ChartDataLabels);
+
+        // --- Configurazione API Mercati (Finnhub) ---
+        const FINNHUB_API_KEY = 'YOUR_FINNHUB_API_KEY'; // Inserisci la tua API Key Finnhub
+        const UPDATE_INTERVAL_MS = 5 * 60 * 1000; // Aggiornamento ogni 5 minuti
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8Gf2INUG1LRvdLFTnLPGU9-DnQG1da7M",
@@ -427,7 +452,8 @@
 
         let assets = [];
         let history = [];
-        let chart = null;
+        let doughnutChart = null;
+        let lineChart = null;
         const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
         portfolioRef.on('value', (snapshot) => {
@@ -440,7 +466,64 @@
             const data = snapshot.val();
             history = data ? Object.values(data) : [];
             renderHistory();
+            render(); 
         });
+
+        /**
+         * Calcola il Prezzo Medio di Carico (PMC) per un determinato asset
+         */
+        function getAssetPMC(assetIsin, assetName) {
+            const assetTxs = history.filter(tx => tx.assetIsin === assetIsin || tx.assetName === assetName);
+            const totalSpent = assetTxs.reduce((sum, tx) => sum + tx.amount, 0);
+            const totalShares = assetTxs.reduce((sum, tx) => sum + tx.shares, 0);
+            return totalShares > 0 ? (totalSpent / totalShares) : 0;
+        }
+
+        /**
+         * Calcola l'importo totale investito per un determinato asset
+         */
+        function getAssetTotalSpent(assetIsin, assetName) {
+            const assetTxs = history.filter(tx => tx.assetIsin === assetIsin || tx.assetName === assetName);
+            return assetTxs.reduce((sum, tx) => sum + tx.amount, 0);
+        }
+
+        /**
+         * Fetch dei prezzi di mercato in tempo reale
+         */
+        async function fetchRealtimePrices() {
+            if (!FINNHUB_API_KEY || FINNHUB_API_KEY === 'YOUR_FINNHUB_API_KEY') {
+                console.log('Chiave API Finnhub non impostata.');
+                return;
+            }
+
+            document.getElementById('sync-status').innerText = '🔄 Aggiornamento mercati...';
+            let updated = false;
+
+            for (let asset of assets) {
+                if (asset.isin) {
+                    try {
+                        const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.isin}&token=${FINNHUB_API_KEY}`);
+                        const data = await response.json();
+                        if (data && data.c && data.c > 0) {
+                            asset.price = data.c;
+                            updated = true;
+                        }
+                    } catch (err) {
+                        console.error(`Errore aggiornamento prezzo ${asset.name}:`, err);
+                    }
+                }
+            }
+
+            if (updated) {
+                const now = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('last-update-time').innerText = `Ultimo agg. mercati: ${now}`;
+                saveToCloud();
+            } else {
+                document.getElementById('sync-status').innerText = '🟢 Connesso';
+            }
+        }
+
+        setInterval(fetchRealtimePrices, UPDATE_INTERVAL_MS);
 
         function saveToCloud() {
             document.getElementById('sync-status').innerText = '⏳ Salvo...';
@@ -456,14 +539,33 @@
             tbody.innerHTML = '';
             select.innerHTML = '';
 
-            let totalPortfolio = 0;
-            assets.forEach(a => totalPortfolio += (a.quote * a.price));
+            let totalPortfolioVal = 0;
+            let totalInvestedVal = history.reduce((sum, tx) => sum + tx.amount, 0);
 
-            document.getElementById('total-val').innerText = `€ ${totalPortfolio.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            assets.forEach(a => totalPortfolioVal += (a.quote * a.price));
 
+            // Metriche Globali
+            const totalPL = totalPortfolioVal - totalInvestedVal;
+            const totalPLPerc = totalInvestedVal > 0 ? (totalPL / totalInvestedVal) * 100 : 0;
+
+            document.getElementById('total-val').innerText = `€ ${totalPortfolioVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('total-invested').innerText = `€ ${totalInvestedVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            const plElem = document.getElementById('total-pl');
+            const sign = totalPL >= 0 ? '+' : '';
+            plElem.style.color = totalPL >= 0 ? 'var(--success)' : 'var(--danger)';
+            plElem.innerText = `${sign}€ ${totalPL.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${sign}${totalPLPerc.toFixed(2)}%)`;
+
+            // Tabella Asset
             assets.forEach((a, i) => {
                 const totalAssetVal = a.quote * a.price;
-                const weight = totalPortfolio > 0 ? ((totalAssetVal / totalPortfolio) * 100).toFixed(1) : '0.0';
+                const weight = totalPortfolioVal > 0 ? ((totalAssetVal / totalPortfolioVal) * 100).toFixed(1) : '0.0';
+                const pmc = getAssetPMC(a.isin, a.name);
+                const assetInvested = getAssetTotalSpent(a.isin, a.name);
+                const assetPL = totalAssetVal - assetInvested;
+                const assetPLPerc = pmc > 0 ? ((a.price - pmc) / pmc) * 100 : 0;
+                const aSign = assetPL >= 0 ? '+' : '';
+                const aColor = assetPL >= 0 ? 'var(--success)' : 'var(--danger)';
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -473,7 +575,9 @@
                     </td>
                     <td data-label="Quote"><input type="number" step="any" value="${a.quote}" onchange="updateAsset(${i}, 'quote', this.value)"></td>
                     <td data-label="Prezzo (€)"><input type="number" step="any" value="${a.price}" onchange="updateAsset(${i}, 'price', this.value)"></td>
+                    <td data-label="PMC (€)"><span style="font-weight:600; color:var(--text-secondary);">€ ${pmc > 0 ? pmc.toFixed(2) : '-'}</span></td>
                     <td data-label="Valore (€)"><strong style="color:var(--text-primary);">€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                    <td data-label="P&L (€ / %)"><span style="color:${aColor}; font-weight:600;">${aSign}€ ${assetPL.toFixed(2)} (${aSign}${assetPLPerc.toFixed(1)}%)</span></td>
                     <td data-label="Peso %"><span style="background:rgba(59, 130, 246, 0.15); color:#60a5fa; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">${weight}%</span></td>
                     <td data-label="Azione"><button class="btn-danger" onclick="deleteAsset(${i})">Elimina</button></td>
                 `;
@@ -485,18 +589,16 @@
                 select.appendChild(opt);
             });
 
-            renderChart(totalPortfolio);
+            renderDoughnutChart();
+            renderLineChart();
         }
 
         function renderHistory() {
             const tbody = document.getElementById('history-tbody');
             tbody.innerHTML = '';
-            let totalInvested = 0;
-
             const sortedHistory = [...history].reverse();
 
             sortedHistory.forEach((tx) => {
-                totalInvested += tx.amount;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td data-label="Data"><strong>${tx.date}</strong></td>
@@ -508,8 +610,6 @@
                 `;
                 tbody.appendChild(tr);
             });
-
-            document.getElementById('total-invested').innerText = `€ ${totalInvested.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         }
 
         function submitPacPurchase() {
@@ -601,11 +701,12 @@
             saveToCloud();
         }
 
-        function renderChart(totalVal) {
+        // --- Render Grafico Doughnut ---
+        function renderDoughnutChart() {
             const ctx = document.getElementById('doughnutChart').getContext('2d');
-            if (chart) chart.destroy();
+            if (doughnutChart) doughnutChart.destroy();
 
-            chart = new Chart(ctx, {
+            doughnutChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: assets.map(a => a.name),
@@ -629,31 +730,54 @@
                                 return (value * 100 / sum).toFixed(1) + '%';
                             }
                         },
-                        tooltip: {
-                            backgroundColor: '#0b0f19',
-                            titleColor: '#f8fafc',
-                            bodyColor: '#cbd5e1',
-                            borderColor: 'rgba(255,255,255,0.1)',
-                            borderWidth: 1,
-                            padding: 10,
-                            callbacks: {
-                                label: function(context) {
-                                    let val = context.parsed || 0;
-                                    let sum = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    let perc = sum > 0 ? ((val / sum) * 100).toFixed(1) : 0;
-                                    let a = assets[context.dataIndex];
-                                    return [
-                                        ` Valore: € ${val.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
-                                        ` Peso: ${perc}%`,
-                                        ` Quote: ${a ? a.quote.toFixed(4) : 0}`,
-                                        ` Prezzo: € ${a ? a.price.toFixed(2) : 0}`
-                                    ];
-                                }
-                            }
-                        },
                         legend: { position: 'bottom', labels: { color: '#f8fafc', font: { family: 'Inter', size: 11 } } }
                     },
                     cutout: '65%'
+                }
+            });
+        }
+
+        // --- Render Grafico Line (Storico Evoluzione) ---
+        function renderLineChart() {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            if (lineChart) lineChart.destroy();
+
+            // Ordina transazioni per data
+            const sortedTxs = [...history].sort((a, b) => a.id - b.id);
+            let cumulativeInvested = 0;
+            const labels = [];
+            const investedData = [];
+
+            sortedTxs.forEach(tx => {
+                cumulativeInvested += tx.amount;
+                labels.push(tx.date);
+                investedData.push(cumulativeInvested);
+            });
+
+            lineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Nessun Dato'],
+                    datasets: [{
+                        label: 'Totale Investito (€)',
+                        data: investedData.length > 0 ? investedData : [0],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: { display: false },
+                        legend: { labels: { color: '#f8fafc', font: { family: 'Inter' } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
                 }
             });
         }
