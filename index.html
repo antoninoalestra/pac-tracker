@@ -618,18 +618,21 @@
             const select = document.getElementById('pac-asset-select');
             tbody.innerHTML = '';
             select.innerHTML = '';
-
+        
             let totalPortfolioVal = 0;
-            // Considera solo gli asset attivi con quote > 0 per il calcolo dell'investito
+        
+            // 1. Identifica gli ISIN degli asset attivi (con quote > 0)
             const activeIsins = assets.filter(a => a.quote > 0.0001).map(a => a.isin);
-            const buysOnly = history.filter(tx => tx.type === 'BUY' && (activeIsins.includes(tx.assetIsin) || activeIsins.includes('EUNL.DE') || activeIsins.includes('IS3N.DE')));
-            let totalInvestedVal = buysOnly.reduce((sum, tx) => sum + tx.amount, 0);
-
+        
+            // 2. Calcola il Totale Investito SOLO per gli asset attualmente attivi nel PAC
+            const activeBuysOnly = history.filter(tx => tx.type === 'BUY' && (activeIsins.includes(tx.assetIsin) || activeIsins.includes('EUNL.DE') || activeIsins.includes('IS3N.DE') || activeIsins.includes('IE00B4L5Y983') || activeIsins.includes('IE00BKM4GZ66')));
+            let totalInvestedVal = activeBuysOnly.reduce((sum, tx) => sum + tx.amount, 0);
+        
             assets.forEach(a => totalPortfolioVal += (a.quote * a.price));
-
+        
             const totalPL = totalPortfolioVal - totalInvestedVal;
             const totalPLPerc = totalInvestedVal > 0 ? (totalPL / totalInvestedVal) * 100 : 0;
-
+        
             document.getElementById('total-val').innerText = `€ ${totalPortfolioVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('total-invested').innerText = `€ ${totalInvestedVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             
@@ -637,7 +640,8 @@
             const sign = totalPL >= 0 ? '+' : '';
             plElem.style.color = totalPL >= 0 ? 'var(--success)' : 'var(--danger)';
             plElem.innerText = `${sign}€ ${totalPL.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${sign}${totalPLPerc.toFixed(2)}%)`;
-
+        
+            // Renderizza la tabella degli asset
             assets.forEach((a, i) => {
                 const totalAssetVal = a.quote * a.price;
                 const weight = totalPortfolioVal > 0 ? ((totalAssetVal / totalPortfolioVal) * 100).toFixed(1) : '0.0';
@@ -648,7 +652,7 @@
                 const aSign = assetPL >= 0 ? '+' : '';
                 const aColor = assetPL >= 0 ? 'var(--success)' : 'var(--danger)';
                 const lastBuy = a.lastBuyPrice || a.price;
-
+        
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td data-label="Asset">
@@ -665,16 +669,16 @@
                     <td data-label="Azione"><button class="btn-danger" onclick="deleteAsset(${i})">Elimina</button></td>
                 `;
                 tbody.appendChild(tr);
-
+        
                 const opt = document.createElement('option');
                 opt.value = i;
                 opt.innerText = `${a.name} (${a.isin})`;
                 select.appendChild(opt);
             });
-
+        
             renderDoughnutChart();
         }
-
+        
         function renderHistory() {
             const tbody = document.getElementById('history-tbody');
             tbody.innerHTML = '';
