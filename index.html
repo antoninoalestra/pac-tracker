@@ -174,16 +174,9 @@
             width: 100%;
         }
 
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .section-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; }
 
-        /* Card Singolo Asset */
         .asset-item-card {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--card-border);
@@ -192,19 +185,9 @@
             margin-bottom: 12px;
             transition: all 0.2s ease;
         }
-        .asset-item-card:hover {
-            background: var(--card-hover);
-            border-color: rgba(255, 255, 255, 0.12);
-        }
+        .asset-item-card:hover { background: var(--card-hover); border-color: rgba(255, 255, 255, 0.12); }
 
-        .asset-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            gap: 12px;
-        }
-
+        .asset-top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 12px; }
         .asset-info { display: flex; flex-direction: column; gap: 4px; }
         .asset-name { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
         .asset-ticker-badge { display: flex; align-items: center; gap: 8px; }
@@ -215,7 +198,6 @@
         .asset-total-val { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); }
         .asset-pl-val { font-size: 0.82rem; font-weight: 700; }
 
-        /* Griglia Sub-Metriche Asset */
         .asset-details-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -250,16 +232,12 @@
         .inline-input:focus { border-color: var(--accent-blue) !important; }
 
         .asset-actions { display: flex; justify-content: flex-end; }
-
-        /* Chart Container */
         .chart-container { position: relative; height: 260px; width: 100%; }
 
-        /* Tabella Storico */
         .responsive-table { width: 100%; border-collapse: collapse; text-align: left; }
         .responsive-table th { padding: 12px 10px; color: var(--text-muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--card-border); }
         .responsive-table td { padding: 12px 10px; border-bottom: 1px solid var(--card-border); font-size: 0.85rem; vertical-align: middle; }
 
-        /* Modali */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); justify-content: center; align-items: flex-end; z-index: 1000; }
         @media (min-width: 600px) { .modal { align-items: center; } }
 
@@ -290,10 +268,8 @@
         <div class="status-badge" id="sync-status">🟢 Connesso</div>
     </header>
 
-    <!-- Input File CSV Nascosto -->
     <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="importCSVFile(event)">
 
-    <!-- Toolbar Desktop -->
     <div class="btn-toolbar-desktop">
         <button class="btn btn-green" onclick="openModal('pacModal')">+ Registra Versamento</button>
         <button class="btn btn-orange" onclick="triggerCSVSelect()">📥 Importa CSV Trade Republic</button>
@@ -302,7 +278,6 @@
         <button class="btn btn-secondary" style="color:var(--danger);" onclick="resetAllData()">🧹 Reset a 0</button>
     </div>
 
-    <!-- Metriche Top Cards -->
     <div class="summary-grid">
         <div class="summary-card">
             <div class="metric-title">Valore Totale PAC</div>
@@ -319,7 +294,6 @@
     </div>
 
     <div class="main-grid">
-        <!-- Lista Asset a Schede -->
         <div class="section-card">
             <div class="section-header">
                 <div class="section-title">Asset in Portafoglio</div>
@@ -327,7 +301,6 @@
             <div id="assets-list-container"></div>
         </div>
 
-        <!-- Donut Chart Allocation -->
         <div class="section-card">
             <div class="section-header">
                 <div class="section-title">Asset Allocation (%)</div>
@@ -338,9 +311,7 @@
         </div>
     </div>
 
-    <!-- Nuova Sezione Grafici Avanzati -->
     <div class="main-grid" style="margin-top: 20px;">
-        <!-- Grafico 1: Versamenti Mensili -->
         <div class="section-card">
             <div class="section-header">
                 <div class="section-title">Storico Versamenti Mensili PAC (€)</div>
@@ -350,7 +321,6 @@
             </div>
         </div>
 
-        <!-- Grafico 2: Performance P&L per Asset -->
         <div class="section-card">
             <div class="section-header">
                 <div class="section-title">Profit / Loss per Asset (€)</div>
@@ -361,7 +331,6 @@
         </div>
     </div>
 
-    <!-- Storico Versamenti -->
     <div class="section-card" style="margin-top: 20px;">
         <div class="section-header">
             <div class="section-title">Storico Versamenti PAC</div>
@@ -384,14 +353,12 @@
         </div>
     </div>
 
-    <!-- Mobile Bottom Bar -->
     <div class="mobile-bottom-bar">
         <button class="btn btn-green" style="flex:1;" onclick="openModal('pacModal')">+ PAC</button>
         <button class="btn btn-orange" style="flex:1;" onclick="triggerCSVSelect()">📥 CSV</button>
         <button class="btn btn-secondary" onclick="fetchRealtimePrices()">🔄</button>
     </div>
 
-    <!-- Modal 1: Versamento -->
     <div class="modal" id="pacModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -414,7 +381,6 @@
         </div>
     </div>
 
-    <!-- Modal 2: Nuovo Asset -->
     <div class="modal" id="assetModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -444,6 +410,10 @@
     <script>
         Chart.register(ChartDataLabels);
 
+        // --- Configurazione Finnhub API Key ---
+        const FINNHUB_API_KEY = 'd9qv5ghr01qnlhckii0gd9qv5ghr01qnlhckii10';
+        const UPDATE_INTERVAL_MS = 5 * 60 * 1000;
+
         const firebaseConfig = {
             apiKey: "AIzaSyA8Gf2INUG1LRvdLFTnLPGU9-DnQG1da7M",
             authDomain: "pac-tracker-ad855.firebaseapp.com",
@@ -460,7 +430,7 @@
         const historyRef = db.ref('pac_history');
 
         const defaultAssets = [
-            { id: '1', name: 'Eurozone Gov Bond', isin: 'IE00BH04GL39', quote: 0.0, price: 23.80, lastBuyPrice: 23.80, color: '#f59e0b' }
+            { id: '1', name: 'Eurozone Gov Bond', isin: 'EIGB.DE', quote: 0.0, price: 23.80, lastBuyPrice: 23.80, color: '#f59e0b' }
         ];
 
         let assets = [];
@@ -519,10 +489,10 @@
                 let importedTxs = [];
                 let assetMap = {};
 
-                assetMap['IE00BH04GL39'] = {
+                assetMap['EIGB.DE'] = {
                     id: 'bond_default',
                     name: 'Eurozone Gov Bond',
-                    isin: 'IE00BH04GL39',
+                    isin: 'EIGB.DE',
                     quote: 0.0,
                     price: 23.80,
                     lastBuyPrice: 23.80,
@@ -562,15 +532,8 @@
                         });
 
                         let marketTicker = isin;
-                        let livePriceInit = price;
-
-                        if (isin === 'IE00B4L5Y983') {
-                            marketTicker = 'EUNL.DE';
-                            livePriceInit = 128.61;
-                        } else if (isin === 'IE00BKM4GZ66') {
-                            marketTicker = 'IS3N.DE';
-                            livePriceInit = 46.41;
-                        }
+                        if (isin === 'IE00B4L5Y983') marketTicker = 'EUNL.DE';
+                        else if (isin === 'IE00BKM4GZ66') marketTicker = 'IS3N.DE';
 
                         if (!assetMap[isin]) {
                             assetMap[isin] = {
@@ -578,7 +541,7 @@
                                 name: name,
                                 isin: marketTicker,
                                 quote: 0,
-                                price: livePriceInit,
+                                price: price,
                                 lastBuyPrice: price,
                                 color: colors[Object.keys(assetMap).length % colors.length]
                             };
@@ -595,8 +558,9 @@
 
                 if (importedTxs.length > 0) {
                     history = importedTxs;
-                    assets = Object.values(assetMap).filter(a => a.quote > 0.0001 || a.isin === 'IE00BH04GL39');
+                    assets = Object.values(assetMap).filter(a => a.quote > 0.0001 || a.isin === 'EIGB.DE');
                     saveToCloud();
+                    fetchRealtimePrices();
                     alert(`✅ Importati ${importedTxs.length} movimenti dal file CSV.`);
                 } else {
                     alert('Nessun versamento PAC trovato nel file CSV.');
@@ -619,25 +583,53 @@
             return buys.reduce((sum, tx) => sum + tx.amount, 0);
         }
 
+        /**
+         * Chiamata API Live avanzata via Finnhub e Proxy Yahoo
+         */
         async function fetchRealtimePrices() {
             document.getElementById('sync-status').innerText = '🔄 Aggiornamento Live...';
             let updated = false;
 
             for (let asset of assets) {
-                if (asset.isin && asset.quote > 0) {
-                    try {
-                        const symbol = asset.isin;
-                        const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`);
-                        if (res.ok) {
-                            const data = await res.json();
-                            const metaPrice = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-                            if (metaPrice && metaPrice > 0) {
-                                asset.price = metaPrice;
-                                updated = true;
+                if (asset.quote > 0) {
+                    let priceFetched = null;
+
+                    if (FINNHUB_API_KEY && FINNHUB_API_KEY !== 'YOUR_FINNHUB_API_KEY') {
+                        try {
+                            const symbol = asset.isin;
+                            const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`);
+                            if (res.ok) {
+                                const data = await res.json();
+                                if (data && data.c && data.c > 0) {
+                                    priceFetched = data.c;
+                                }
                             }
+                        } catch (e) {
+                            console.log(`Finnhub error for ${asset.name}`);
                         }
-                    } catch (e) {
-                        console.log(`Aggiorna manualmente il prezzo live per ${asset.name}`);
+                    }
+
+                    if (!priceFetched) {
+                        try {
+                            const symbol = asset.isin;
+                            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`)}`;
+                            const res = await fetch(proxyUrl);
+                            if (res.ok) {
+                                const wrapper = await res.json();
+                                const data = JSON.parse(wrapper.contents);
+                                const metaPrice = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+                                if (metaPrice && metaPrice > 0) {
+                                    priceFetched = metaPrice;
+                                }
+                            }
+                        } catch (e) {
+                            console.log(`Yahoo proxy error for ${asset.name}`);
+                        }
+                    }
+
+                    if (priceFetched && priceFetched > 0) {
+                        asset.price = priceFetched;
+                        updated = true;
                     }
                 }
             }
@@ -647,6 +639,8 @@
             if (updated) saveToCloud();
             else document.getElementById('sync-status').innerText = '🟢 Connesso';
         }
+
+        setInterval(fetchRealtimePrices, UPDATE_INTERVAL_MS);
 
         function saveToCloud() {
             document.getElementById('sync-status').innerText = '⏳ Salvo...';
@@ -663,9 +657,17 @@
             select.innerHTML = '';
 
             let totalPortfolioVal = 0;
+
+            // Filtro rigoroso: Totale Investito SOLO per gli asset ATTIVI in portafoglio
             const activeIsins = assets.filter(a => a.quote > 0.0001).map(a => a.isin);
-            const buysOnly = history.filter(tx => tx.type === 'BUY' && (activeIsins.includes(tx.assetIsin) || activeIsins.includes('EUNL.DE') || activeIsins.includes('IS3N.DE') || activeIsins.includes('IE00B4L5Y983') || activeIsins.includes('IE00BKM4GZ66')));
-            let totalInvestedVal = buysOnly.reduce((sum, tx) => sum + tx.amount, 0);
+            const activeBuysOnly = history.filter(tx => tx.type === 'BUY' && (
+                activeIsins.includes(tx.assetIsin) || 
+                activeIsins.includes('EUNL.DE') || 
+                activeIsins.includes('IS3N.DE') || 
+                activeIsins.includes('IE00B4L5Y983') || 
+                activeIsins.includes('IE00BKM4GZ66')
+            ));
+            let totalInvestedVal = activeBuysOnly.reduce((sum, tx) => sum + tx.amount, 0);
 
             assets.forEach(a => totalPortfolioVal += (a.quote * a.price));
 
@@ -856,7 +858,6 @@
             saveToCloud();
         }
 
-        // --- Render Donut Chart ---
         function renderDoughnutChart() {
             const ctx = document.getElementById('doughnutChart').getContext('2d');
             if (doughnutChart) doughnutChart.destroy();
@@ -894,7 +895,6 @@
             });
         }
 
-        // --- Render Grafico 1: Versamenti Mensili ---
         function renderMonthlyBarChart() {
             const ctx = document.getElementById('monthlyBarChart').getContext('2d');
             if (monthlyBarChart) monthlyBarChart.destroy();
@@ -905,7 +905,7 @@
             buys.forEach(tx => {
                 const parts = tx.date.split('/');
                 if (parts.length === 3) {
-                    const key = `${parts[2]}-${parts[1]}`; // YYYY-MM
+                    const key = `${parts[2]}-${parts[1]}`;
                     monthlyMap[key] = (monthlyMap[key] || 0) + tx.amount;
                 }
             });
@@ -927,10 +927,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: { display: false },
-                        legend: { display: false }
-                    },
+                    plugins: { datalabels: { display: false }, legend: { display: false } },
                     scales: {
                         x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
                         y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
@@ -939,7 +936,6 @@
             });
         }
 
-        // --- Render Grafico 2: Performance P&L per Asset ---
         function renderPLBarChart() {
             const ctx = document.getElementById('plBarChart').getContext('2d');
             if (plBarChart) plBarChart.destroy();
