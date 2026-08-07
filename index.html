@@ -36,7 +36,6 @@
             padding: 0; 
             font-family: 'Inter', sans-serif; 
             -webkit-tap-highlight-color: transparent;
-            min-width: 0;
         }
 
         html, body {
@@ -85,44 +84,39 @@
             white-space: nowrap;
         }
 
-        /* Metric Cards Grid */
+        /* Cards Summary */
         .summary-grid { 
             display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 10px; 
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+            gap: 12px; 
             margin-bottom: 16px; 
             width: 100%;
-        }
-
-        @media (min-width: 768px) {
-            .summary-grid { grid-template-columns: repeat(3, 1fr); }
         }
         
         .card { 
             background-color: var(--card-bg); 
             border: 1px solid var(--border-color); 
             border-radius: 16px; 
-            padding: 14px; 
+            padding: 16px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             width: 100%;
+            overflow: hidden;
         }
         
-        .metric-title { color: var(--text-secondary); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; font-weight: 600; }
-        .metric-value { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; word-break: break-all; }
+        .metric-title { color: var(--text-secondary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; font-weight: 600; }
+        .metric-value { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; }
 
-        /* Actions Toolbar Desktop */
-        .btn-toolbar-desktop { display: flex; gap: 10px; margin-bottom: 20px; }
+        /* Toolbar Buttons */
+        .btn-toolbar-desktop { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         
-        /* Floating Action Bar Mobile */
         .mobile-bottom-bar {
             display: none;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(21, 28, 44, 0.94);
+            background: rgba(21, 28, 44, 0.95);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border-top: 1px solid var(--border-color);
             padding: 10px 14px;
             gap: 10px;
@@ -133,7 +127,7 @@
             background: var(--accent-gradient); 
             color: white; 
             border: none; 
-            padding: 12px 16px; 
+            padding: 10px 16px; 
             border-radius: 12px; 
             cursor: pointer; 
             font-weight: 600; 
@@ -149,26 +143,27 @@
         .btn:active { transform: scale(0.97); }
         .btn-green { background: var(--green-gradient); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
         .btn-secondary { background: rgba(255,255,255,0.08); box-shadow: none; }
+        .btn-orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25); }
         .btn-danger { background-color: var(--danger); padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; border: none; color: white; cursor: pointer; font-weight: 600; }
 
         .main-grid { display: grid; grid-template-columns: 1fr; gap: 16px; width: 100%; }
         
-        @media (min-width: 900px) { 
-            .main-grid { grid-template-columns: 3fr 2fr; } 
+        @media (min-width: 992px) { 
+            .main-grid { grid-template-columns: 1fr 380px; } 
             .btn-toolbar-desktop { display: flex; }
-            .metric-value { font-size: 1.4rem; }
-            body { padding-bottom: 20px; padding: 20px; }
+            body { padding: 20px; }
         }
         
-        @media (max-width: 899px) {
+        @media (max-width: 991px) {
             .btn-toolbar-desktop { display: none; }
             .mobile-bottom-bar { display: flex; }
         }
 
-        /* Responsive Table */
-        .responsive-table { width: 100%; border-collapse: collapse; }
-        .responsive-table th { text-align: left; padding: 12px; color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
-        .responsive-table td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
+        /* Tabella Layout */
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        .responsive-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .responsive-table th { padding: 12px 10px; color: var(--text-secondary); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        .responsive-table td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; vertical-align: middle; }
 
         @media (max-width: 768px) {
             .responsive-table, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr { 
@@ -178,10 +173,10 @@
             .responsive-table thead { display: none; }
             
             .responsive-table tr { 
-                background: rgba(255, 255, 255, 0.03); 
+                background: rgba(255, 255, 255, 0.02); 
                 border: 1px solid var(--border-color); 
                 border-radius: 14px; 
-                padding: 14px; 
+                padding: 12px; 
                 margin-bottom: 12px; 
             }
             
@@ -191,61 +186,45 @@
                 align-items: center; 
                 padding: 6px 0; 
                 border-bottom: 1px solid rgba(255, 255, 255, 0.04); 
-                gap: 8px;
             }
             
-            .responsive-table td:last-child { 
-                border-bottom: none; 
-                padding-bottom: 0;
-                margin-top: 6px;
-            }
-            
+            .responsive-table td:last-child { border-bottom: none; margin-top: 4px; }
             .responsive-table td::before { 
                 content: attr(data-label); 
                 color: var(--text-secondary); 
                 font-size: 0.72rem; 
                 font-weight: 600; 
                 text-transform: uppercase; 
-                flex-shrink: 0;
             }
 
             .responsive-table td:first-child {
                 border-bottom: 1px solid var(--border-color);
                 padding-bottom: 8px;
                 margin-bottom: 6px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
             }
-            
-            .responsive-table td:first-child::before {
-                display: none !important;
-            }
+            .responsive-table td:first-child::before { display: none !important; }
 
             .responsive-table td input {
-                width: 110px !important;
-                max-width: 45% !important;
+                width: 90px !important;
                 text-align: right;
-                padding: 6px 8px;
-                font-size: 0.85rem;
+                padding: 4px 6px;
             }
         }
 
-        /* Inputs */
         input[type="number"], input[type="text"], select {
             background: #0b0f19; 
             border: 1px solid var(--border-color); 
             color: white; 
-            padding: 8px 10px; 
+            padding: 6px 8px; 
             border-radius: 8px; 
-            font-size: 16px; 
+            font-size: 0.85rem; 
             outline: none;
             width: 100%;
         }
 
-        .chart-container { position: relative; height: 260px; width: 100%; display: flex; justify-content: center; align-items: center; }
+        .chart-container { position: relative; height: 260px; width: 100%; }
 
-        /* Modali Bottom-Sheet */
+        /* Modali */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); justify-content: center; align-items: flex-end; z-index: 1000; }
         @media (min-width: 600px) { .modal { align-items: center; } }
 
@@ -256,20 +235,13 @@
             border-radius: 20px 20px 0 0; 
             width: 100%; 
             max-width: 480px; 
-            animation: slideUp 0.2s ease-out;
         }
         @media (min-width: 600px) { .modal-content { border-radius: 18px; } }
 
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .modal-header h3 { font-size: 1rem; font-weight: 700; }
-        .close-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-secondary); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .close-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-secondary); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
         .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
+        .form-group label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; }
     </style>
 </head>
 <body>
@@ -277,46 +249,50 @@
     <header>
         <div>
             <h1>PAC Portfolio Tracker Pro</h1>
-            <p class="subtitle" id="last-update-time">Sincronizzazione Cloud in tempo reale</p>
+            <p class="subtitle" id="last-update-time">Inizializzazione da Zero & Importazione CSV</p>
         </div>
         <div class="status-badge" id="sync-status">🟢 Connesso</div>
     </header>
 
+    <!-- Input Nascosto per Importare il file CSV -->
+    <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="importCSVFile(event)">
+
     <!-- Toolbar Desktop -->
     <div class="btn-toolbar-desktop">
         <button class="btn btn-green" onclick="openModal('pacModal')">+ Registra Versamento PAC</button>
-        <button class="btn" onclick="openModal('assetModal')">+ Aggiungi Nuovo Asset</button>
-        <button class="btn btn-secondary" onclick="fetchRealtimePrices()">🔄 Aggiorna Prezzi</button>
+        <button class="btn btn-orange" onclick="triggerCSVSelect()">📥 Importa CSV Trade Republic</button>
+        <button class="btn" onclick="openModal('assetModal')">+ Aggiungi Asset</button>
+        <button class="btn btn-secondary" onclick="fetchRealtimePrices()">🔄 Aggiorna Prezzi Mercato</button>
     </div>
 
-    <!-- Metriche Portafoglio -->
+    <!-- Metriche Top Cards -->
     <div class="summary-grid">
         <div class="card">
-            <div class="metric-title">Valore Totale</div>
+            <div class="metric-title">Valore Totale PAC</div>
             <div class="metric-value" id="total-val">€ 0,00</div>
         </div>
         <div class="card">
-            <div class="metric-title">Tot. Investito</div>
+            <div class="metric-title">Totale Investito PAC</div>
             <div class="metric-value" id="total-invested">€ 0,00</div>
         </div>
         <div class="card">
             <div class="metric-title">Profit / Loss Totale</div>
-            <div class="metric-value" id="total-pl">€ 0,00 (0.00%)</div>
+            <div class="metric-value" id="total-pl">€ 0,00 (+0.00%)</div>
         </div>
     </div>
 
     <div class="main-grid">
-        <!-- Schede Asset -->
+        <!-- Scheda Tabella Asset -->
         <div class="card">
-            <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Asset in Portafoglio</h2>
-            <div style="width: 100%;">
+            <h2 style="font-size: 0.95rem; margin-bottom: 12px; font-weight:700;">Asset in Portafoglio</h2>
+            <div class="table-wrapper">
                 <table class="responsive-table">
                     <thead>
                         <tr>
-                            <th>Asset / ISIN</th>
-                            <th style="width: 80px;">Quote</th>
-                            <th style="width: 90px;">Prezzo (€)</th>
-                            <th style="width: 90px;">PMC (€)</th>
+                            <th>Asset / Ticker</th>
+                            <th>Quote</th>
+                            <th>Prezzo (€)</th>
+                            <th>PMC (€)</th>
                             <th>Valore (€)</th>
                             <th>P&L (€ / %)</th>
                             <th>Peso %</th>
@@ -328,27 +304,19 @@
             </div>
         </div>
 
-        <!-- Grafico ad Anello Allocation -->
+        <!-- Donut Chart Allocation -->
         <div class="card">
-            <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Asset Allocation (%)</h2>
+            <h2 style="font-size: 0.95rem; margin-bottom: 12px; font-weight:700;">Asset Allocation (%)</h2>
             <div class="chart-container">
                 <canvas id="doughnutChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Grafico Evoluzione Storica -->
-    <div class="card" style="margin-top: 16px;">
-        <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Andamento Portafoglio (Investito vs Valore di Mercato)</h2>
-        <div class="chart-container" style="height: 300px;">
-            <canvas id="lineChart"></canvas>
-        </div>
-    </div>
-
     <!-- Storico Versamenti -->
     <div class="card" style="margin-top: 16px;">
-        <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-weight:700;">Storico Versamenti PAC</h2>
-        <div style="width: 100%;">
+        <h2 style="font-size: 0.95rem; margin-bottom: 12px; font-weight:700;">Storico Versamenti PAC</h2>
+        <div class="table-wrapper">
             <table class="responsive-table">
                 <thead>
                     <tr>
@@ -365,14 +333,14 @@
         </div>
     </div>
 
-    <!-- Toolbar Fluttuante Mobile -->
+    <!-- Mobile Bottom Bar -->
     <div class="mobile-bottom-bar">
-        <button class="btn btn-green" style="flex:1;" onclick="openModal('pacModal')">+ Versamento</button>
-        <button class="btn" style="flex:1;" onclick="openModal('assetModal')">+ Asset</button>
+        <button class="btn btn-green" style="flex:1;" onclick="openModal('pacModal')">+ PAC</button>
+        <button class="btn btn-orange" style="flex:1;" onclick="triggerCSVSelect()">📥 CSV</button>
         <button class="btn btn-secondary" onclick="fetchRealtimePrices()">🔄</button>
     </div>
 
-    <!-- Modal 1: Registra Versamento PAC -->
+    <!-- Modal 1: Versamento -->
     <div class="modal" id="pacModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -395,7 +363,7 @@
         </div>
     </div>
 
-    <!-- Modal 2: Aggiungi Nuovo Asset -->
+    <!-- Modal 2: Nuovo Asset -->
     <div class="modal" id="assetModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -407,16 +375,16 @@
                 <input type="text" id="new-name" placeholder="Es. S&P 500 ETF">
             </div>
             <div class="form-group">
-                <label>ISIN / Ticker (es. SWRD.DE o AAPL)</label>
-                <input type="text" id="new-isin" placeholder="Es. IE00B5BMR087 o EIMI.MI">
+                <label>Ticker/ISIN (es. SWRD.DE, AAPL)</label>
+                <input type="text" id="new-isin" placeholder="Es. SWRD.DE">
             </div>
             <div class="form-group">
-                <label>Quote Iniziali Possedute</label>
+                <label>Quote Iniziali</label>
                 <input type="number" id="new-quote" step="any" value="0">
             </div>
             <div class="form-group">
                 <label>Prezzo Attuale (€)</label>
-                <input type="number" id="new-price" step="any" placeholder="Es. 450.20">
+                <input type="number" id="new-price" step="any" placeholder="Es. 128.59">
             </div>
             <button class="btn" style="width:100%; padding:12px; margin-top:8px;" onclick="addNewAsset()">Salva Asset</button>
         </div>
@@ -425,9 +393,9 @@
     <script>
         Chart.register(ChartDataLabels);
 
-        // --- Configurazione API Mercati (Finnhub) ---
-        const FINNHUB_API_KEY = 'YOUR_FINNHUB_API_KEY'; // Inserisci la tua API Key Finnhub
-        const UPDATE_INTERVAL_MS = 5 * 60 * 1000; // Aggiornamento ogni 5 minuti
+        // --- Configurazione Finnhub API ---
+        const FINNHUB_API_KEY = 'YOUR_FINNHUB_API_KEY';
+        const UPDATE_INTERVAL_MS = 5 * 60 * 1000;
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8Gf2INUG1LRvdLFTnLPGU9-DnQG1da7M",
@@ -444,17 +412,15 @@
         const portfolioRef = db.ref('pac_portfolio');
         const historyRef = db.ref('pac_history');
 
+        // Asset di base (incluso l'ETF Obbligazionario a quota 0 per futuri investimenti)
         const defaultAssets = [
-            { id: '1', name: 'Core MSCI World', isin: 'IE00B4L5Y983', quote: 10.104568, price: 128.59, color: '#3b82f6' },
-            { id: '2', name: 'Core MSCI EM IMI', isin: 'IE00BKM4GZ66', quote: 10.491813, price: 46.75, color: '#10b981' },
-            { id: '3', name: 'Eurozone Gov Bond', isin: 'IE00BH04GL39', quote: 0.0, price: 23.80, color: '#f59e0b' }
+            { id: '1', name: 'Eurozone Gov Bond', isin: 'IE00BH04GL39', quote: 0.0, price: 23.80, color: '#f59e0b' }
         ];
 
         let assets = [];
         let history = [];
         let doughnutChart = null;
-        let lineChart = null;
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
 
         portfolioRef.on('value', (snapshot) => {
             const data = snapshot.val();
@@ -469,47 +435,141 @@
             render(); 
         });
 
-        /**
-         * Calcola il Prezzo Medio di Carico (PMC) per un determinato asset
-         */
-        function getAssetPMC(assetIsin, assetName) {
-            const assetTxs = history.filter(tx => tx.assetIsin === assetIsin || tx.assetName === assetName);
-            const totalSpent = assetTxs.reduce((sum, tx) => sum + tx.amount, 0);
-            const totalShares = assetTxs.reduce((sum, tx) => sum + tx.shares, 0);
-            return totalShares > 0 ? (totalSpent / totalShares) : 0;
+        function triggerCSVSelect() {
+            document.getElementById('csv-file-input').click();
         }
 
         /**
-         * Calcola l'importo totale investito per un determinato asset
+         * Importazione rigorosa CSV con salvataggio dell'ETF Obbligazionario
          */
-        function getAssetTotalSpent(assetIsin, assetName) {
-            const assetTxs = history.filter(tx => tx.assetIsin === assetIsin || tx.assetName === assetName);
-            return assetTxs.reduce((sum, tx) => sum + tx.amount, 0);
+        function importCSVFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                if (lines.length < 2) return;
+
+                const headers = lines[0].replace(/"/g, '').split(',').map(h => h.trim());
+                const catIdx = headers.indexOf('category');
+                const typeIdx = headers.indexOf('type');
+                const dateIdx = headers.indexOf('date');
+                const nameIdx = headers.indexOf('name');
+                const symbolIdx = headers.indexOf('symbol');
+                const sharesIdx = headers.indexOf('shares');
+                const priceIdx = headers.indexOf('price');
+                const amountIdx = headers.indexOf('amount');
+                const descIdx = headers.indexOf('description');
+                const idIdx = headers.indexOf('transaction_id');
+
+                let importedTxs = [];
+                let assetMap = {};
+
+                // Mantiene preventivamente l'ETF Obbligazionario se già presente
+                assets.forEach(a => {
+                    assetMap[a.isin] = { ...a };
+                });
+
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    
+                    const cols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
+                    const cleanCols = cols.map(c => c ? c.replace(/^"|"$/g, '').trim() : '');
+
+                    const category = cleanCols[catIdx];
+                    const type = cleanCols[typeIdx];
+                    const description = cleanCols[descIdx] || '';
+
+                    // FILTRO: Importa SOLO i versamenti del PAC (Savings Plan Execution)
+                    const isPAC = category === 'TRADING' && type === 'BUY' && description.includes('Savings plan execution');
+
+                    if (isPAC) {
+                        const rawDate = cleanCols[dateIdx];
+                        const dParts = rawDate.split('-');
+                        const formattedDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
+                        
+                        const name = cleanCols[nameIdx];
+                        const isin = cleanCols[symbolIdx];
+                        const shares = Math.abs(parseFloat(cleanCols[sharesIdx])) || 0;
+                        const price = parseFloat(cleanCols[priceIdx]) || 0;
+                        const amount = Math.abs(parseFloat(cleanCols[amountIdx])) || 0;
+                        const txId = cleanCols[idIdx] || Date.now().toString() + i;
+
+                        importedTxs.push({
+                            id: txId,
+                            date: formattedDate,
+                            assetName: name,
+                            assetIsin: isin,
+                            amount: amount,
+                            shares: shares,
+                            price: price,
+                            type: 'BUY'
+                        });
+
+                        // Mappatura Ticker Borsa per aggiornamento prezzi
+                        let marketTicker = isin;
+                        if (isin === 'IE00B4L5Y983') marketTicker = 'SWRD.DE';
+                        else if (isin === 'IE00BKM4GZ66') marketTicker = 'EIMI.MI';
+
+                        if (!assetMap[isin]) {
+                            assetMap[isin] = {
+                                id: Date.now().toString() + Math.random(),
+                                name: name,
+                                isin: marketTicker,
+                                quote: 0,
+                                price: price,
+                                color: colors[Object.keys(assetMap).length % colors.length]
+                            };
+                        }
+                        assetMap[isin].quote += shares;
+                        assetMap[isin].price = price;
+                    }
+                }
+
+                if (importedTxs.length > 0) {
+                    history = importedTxs;
+                    // Mantiene gli asset importati + l'ETF Obbligazionario (anche con quote a 0)
+                    assets = Object.values(assetMap);
+                    saveToCloud();
+                    alert(`✅ Inizializzazione completata! Importati ${importedTxs.length} versamenti PAC dal tuo file CSV.`);
+                } else {
+                    alert('Nessun versamento PAC trovato nel file CSV.');
+                }
+            };
+            reader.readAsText(file);
         }
 
-        /**
-         * Fetch dei prezzi di mercato in tempo reale
-         */
+        function getAssetPMC(isin, name) {
+            const txs = history.filter(tx => tx.assetIsin === isin || tx.assetName === name);
+            const spent = txs.reduce((sum, tx) => sum + tx.amount, 0);
+            const shares = txs.reduce((sum, tx) => sum + tx.shares, 0);
+            return shares > 0 ? (spent / shares) : 0;
+        }
+
+        function getAssetTotalSpent(isin, name) {
+            const txs = history.filter(tx => tx.assetIsin === isin || tx.assetName === name);
+            return txs.reduce((sum, tx) => sum + tx.amount, 0);
+        }
+
         async function fetchRealtimePrices() {
-            if (!FINNHUB_API_KEY || FINNHUB_API_KEY === 'YOUR_FINNHUB_API_KEY') {
-                console.log('Chiave API Finnhub non impostata.');
-                return;
-            }
+            if (!FINNHUB_API_KEY || FINNHUB_API_KEY === 'YOUR_FINNHUB_API_KEY') return;
 
-            document.getElementById('sync-status').innerText = '🔄 Aggiornamento mercati...';
+            document.getElementById('sync-status').innerText = '🔄 Aggiornamento...';
             let updated = false;
 
             for (let asset of assets) {
                 if (asset.isin) {
                     try {
-                        const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.isin}&token=${FINNHUB_API_KEY}`);
-                        const data = await response.json();
+                        const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.isin}&token=${FINNHUB_API_KEY}`);
+                        const data = await res.json();
                         if (data && data.c && data.c > 0) {
                             asset.price = data.c;
                             updated = true;
                         }
-                    } catch (err) {
-                        console.error(`Errore aggiornamento prezzo ${asset.name}:`, err);
+                    } catch (e) {
+                        console.error(`Errore API per ${asset.name}:`, e);
                     }
                 }
             }
@@ -544,7 +604,6 @@
 
             assets.forEach(a => totalPortfolioVal += (a.quote * a.price));
 
-            // Metriche Globali
             const totalPL = totalPortfolioVal - totalInvestedVal;
             const totalPLPerc = totalInvestedVal > 0 ? (totalPL / totalInvestedVal) * 100 : 0;
 
@@ -556,13 +615,12 @@
             plElem.style.color = totalPL >= 0 ? 'var(--success)' : 'var(--danger)';
             plElem.innerText = `${sign}€ ${totalPL.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${sign}${totalPLPerc.toFixed(2)}%)`;
 
-            // Tabella Asset
             assets.forEach((a, i) => {
                 const totalAssetVal = a.quote * a.price;
                 const weight = totalPortfolioVal > 0 ? ((totalAssetVal / totalPortfolioVal) * 100).toFixed(1) : '0.0';
                 const pmc = getAssetPMC(a.isin, a.name);
-                const assetInvested = getAssetTotalSpent(a.isin, a.name);
-                const assetPL = totalAssetVal - assetInvested;
+                const assetSpent = getAssetTotalSpent(a.isin, a.name);
+                const assetPL = totalAssetVal - assetSpent;
                 const assetPLPerc = pmc > 0 ? ((a.price - pmc) / pmc) * 100 : 0;
                 const aSign = assetPL >= 0 ? '+' : '';
                 const aColor = assetPL >= 0 ? 'var(--success)' : 'var(--danger)';
@@ -571,14 +629,14 @@
                 tr.innerHTML = `
                     <td data-label="Asset">
                         <div><strong>${a.name}</strong></div>
-                        <span style="font-size:0.7rem; color:var(--text-secondary); font-weight:normal;">${a.isin}</span>
+                        <span style="font-size:0.7rem; color:var(--text-secondary);">${a.isin}</span>
                     </td>
-                    <td data-label="Quote"><input type="number" step="any" value="${a.quote}" onchange="updateAsset(${i}, 'quote', this.value)"></td>
+                    <td data-label="Quote"><input type="number" step="any" value="${a.quote.toFixed(6)}" onchange="updateAsset(${i}, 'quote', this.value)"></td>
                     <td data-label="Prezzo (€)"><input type="number" step="any" value="${a.price}" onchange="updateAsset(${i}, 'price', this.value)"></td>
                     <td data-label="PMC (€)"><span style="font-weight:600; color:var(--text-secondary);">€ ${pmc > 0 ? pmc.toFixed(2) : '-'}</span></td>
                     <td data-label="Valore (€)"><strong style="color:var(--text-primary);">€ ${totalAssetVal.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                     <td data-label="P&L (€ / %)"><span style="color:${aColor}; font-weight:600;">${aSign}€ ${assetPL.toFixed(2)} (${aSign}${assetPLPerc.toFixed(1)}%)</span></td>
-                    <td data-label="Peso %"><span style="background:rgba(59, 130, 246, 0.15); color:#60a5fa; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">${weight}%</span></td>
+                    <td data-label="Peso %"><span style="background:rgba(59, 130, 246, 0.15); color:#60a5fa; padding:2px 6px; border-radius:8px; font-weight:600; font-size:0.75rem;">${weight}%</span></td>
                     <td data-label="Azione"><button class="btn-danger" onclick="deleteAsset(${i})">Elimina</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -590,7 +648,6 @@
             });
 
             renderDoughnutChart();
-            renderLineChart();
         }
 
         function renderHistory() {
@@ -604,7 +661,7 @@
                     <td data-label="Data"><strong>${tx.date}</strong></td>
                     <td data-label="Asset"><span style="color:var(--accent-blue); font-weight:600;">${tx.assetName}</span></td>
                     <td data-label="Importo (€)">€ ${tx.amount.toFixed(2)}</td>
-                    <td data-label="Quote">+${tx.shares.toFixed(4)}</td>
+                    <td data-label="Quote">+${tx.shares.toFixed(6)}</td>
                     <td data-label="Prezzo">€ ${tx.price.toFixed(2)}</td>
                     <td data-label="Azione"><button class="btn-danger" onclick="deleteTransaction('${tx.id}')">Cancella</button></td>
                 `;
@@ -643,7 +700,8 @@
                 assetIsin: assets[index].isin,
                 amount: investedAmount,
                 shares: addedShares,
-                price: price
+                price: price,
+                type: 'BUY'
             };
 
             history.push(transaction);
@@ -701,18 +759,20 @@
             saveToCloud();
         }
 
-        // --- Render Grafico Doughnut ---
         function renderDoughnutChart() {
             const ctx = document.getElementById('doughnutChart').getContext('2d');
             if (doughnutChart) doughnutChart.destroy();
 
+            // Mostra solo asset con valore > 0 nel grafico ad anello
+            const activeAssets = assets.filter(a => (a.quote * a.price) > 0);
+
             doughnutChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: assets.map(a => a.name),
+                    labels: activeAssets.map(a => a.name),
                     datasets: [{
-                        data: assets.map(a => a.quote * a.price),
-                        backgroundColor: assets.map((a, i) => a.color || colors[i % colors.length]),
+                        data: activeAssets.map(a => a.quote * a.price),
+                        backgroundColor: activeAssets.map((a, i) => a.color || colors[i % colors.length]),
                         borderColor: '#151c2c',
                         borderWidth: 3
                     }]
@@ -723,7 +783,7 @@
                     plugins: {
                         datalabels: {
                             color: '#ffffff',
-                            font: { family: 'Inter', weight: 'bold', size: 11 },
+                            font: { family: 'Inter', weight: 'bold', size: 10 },
                             formatter: (value, ctx) => {
                                 let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                                 if (sum === 0 || value === 0) return '';
@@ -733,51 +793,6 @@
                         legend: { position: 'bottom', labels: { color: '#f8fafc', font: { family: 'Inter', size: 11 } } }
                     },
                     cutout: '65%'
-                }
-            });
-        }
-
-        // --- Render Grafico Line (Storico Evoluzione) ---
-        function renderLineChart() {
-            const ctx = document.getElementById('lineChart').getContext('2d');
-            if (lineChart) lineChart.destroy();
-
-            // Ordina transazioni per data
-            const sortedTxs = [...history].sort((a, b) => a.id - b.id);
-            let cumulativeInvested = 0;
-            const labels = [];
-            const investedData = [];
-
-            sortedTxs.forEach(tx => {
-                cumulativeInvested += tx.amount;
-                labels.push(tx.date);
-                investedData.push(cumulativeInvested);
-            });
-
-            lineChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels.length > 0 ? labels : ['Nessun Dato'],
-                    datasets: [{
-                        label: 'Totale Investito (€)',
-                        data: investedData.length > 0 ? investedData : [0],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: { display: false },
-                        legend: { labels: { color: '#f8fafc', font: { family: 'Inter' } } }
-                    },
-                    scales: {
-                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                    }
                 }
             });
         }
