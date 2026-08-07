@@ -31,7 +31,6 @@
             --text-muted: #64748b;
             --danger: #f43f5e;
             --success: #10b981;
-            --badge-bg: rgba(16, 185, 129, 0.12);
         }
 
         *, *::before, *::after { 
@@ -286,7 +285,7 @@
     <header>
         <div class="header-title">
             <h1>Trade Republic PAC Tracker</h1>
-            <p id="last-update-time">Prezzi di Mercato Live & Storico Esecuzioni</p>
+            <p id="last-update-time">Prezzi di Mercato Live & Analytics Avanzate</p>
         </div>
         <div class="status-badge" id="sync-status">🟢 Connesso</div>
     </header>
@@ -335,6 +334,29 @@
             </div>
             <div class="chart-container">
                 <canvas id="doughnutChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nuova Sezione Grafici Avanzati -->
+    <div class="main-grid" style="margin-top: 20px;">
+        <!-- Grafico 1: Versamenti Mensili -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">Storico Versamenti Mensili PAC (€)</div>
+            </div>
+            <div class="chart-container" style="height: 250px;">
+                <canvas id="monthlyBarChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Grafico 2: Performance P&L per Asset -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">Profit / Loss per Asset (€)</div>
+            </div>
+            <div class="chart-container" style="height: 250px;">
+                <canvas id="plBarChart"></canvas>
             </div>
         </div>
     </div>
@@ -444,6 +466,8 @@
         let assets = [];
         let history = [];
         let doughnutChart = null;
+        let monthlyBarChart = null;
+        let plBarChart = null;
         const colors = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
 
         portfolioRef.on('value', (snapshot) => {
@@ -573,7 +597,7 @@
                     history = importedTxs;
                     assets = Object.values(assetMap).filter(a => a.quote > 0.0001 || a.isin === 'IE00BH04GL39');
                     saveToCloud();
-                    alert(`✅ Inizializzazione completata! Importati ${importedTxs.length} movimenti dal file CSV.`);
+                    alert(`✅ Importati ${importedTxs.length} movimenti dal file CSV.`);
                 } else {
                     alert('Nessun versamento PAC trovato nel file CSV.');
                 }
@@ -667,7 +691,6 @@
                 const aColor = assetPL >= 0 ? 'var(--success)' : 'var(--danger)';
                 const lastBuy = a.lastBuyPrice || a.price;
 
-                // Nuova Scheda Asset Elegante
                 const card = document.createElement('div');
                 card.className = 'asset-item-card';
                 card.innerHTML = `
@@ -715,6 +738,8 @@
             });
 
             renderDoughnutChart();
+            renderMonthlyBarChart();
+            renderPLBarChart();
         }
 
         function renderHistory() {
@@ -831,6 +856,7 @@
             saveToCloud();
         }
 
+        // --- Render Donut Chart ---
         function renderDoughnutChart() {
             const ctx = document.getElementById('doughnutChart').getContext('2d');
             if (doughnutChart) doughnutChart.destroy();
@@ -864,6 +890,95 @@
                         legend: { position: 'bottom', labels: { color: '#f8fafc', font: { family: 'Inter', size: 11 } } }
                     },
                     cutout: '68%'
+                }
+            });
+        }
+
+        // --- Render Grafico 1: Versamenti Mensili ---
+        function renderMonthlyBarChart() {
+            const ctx = document.getElementById('monthlyBarChart').getContext('2d');
+            if (monthlyBarChart) monthlyBarChart.destroy();
+
+            const buys = history.filter(tx => tx.type === 'BUY');
+            const monthlyMap = {};
+
+            buys.forEach(tx => {
+                const parts = tx.date.split('/');
+                if (parts.length === 3) {
+                    const key = `${parts[2]}-${parts[1]}`; // YYYY-MM
+                    monthlyMap[key] = (monthlyMap[key] || 0) + tx.amount;
+                }
+            });
+
+            const sortedKeys = Object.keys(monthlyMap).sort();
+            const values = sortedKeys.map(k => monthlyMap[k]);
+
+            monthlyBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedKeys,
+                    datasets: [{
+                        label: 'Investito (€)',
+                        data: values,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: { display: false },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        // --- Render Grafico 2: Performance P&L per Asset ---
+        function renderPLBarChart() {
+            const ctx = document.getElementById('plBarChart').getContext('2d');
+            if (plBarChart) plBarChart.destroy();
+
+            const activeAssets = assets.filter(a => a.quote > 0.0001);
+            const names = activeAssets.map(a => a.name);
+            const plValues = activeAssets.map(a => {
+                const totalAssetVal = a.quote * a.price;
+                const assetSpent = getAssetTotalSpent(a.isin, a.name);
+                return totalAssetVal - assetSpent;
+            });
+
+            plBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: names,
+                    datasets: [{
+                        label: 'P&L (€)',
+                        data: plValues,
+                        backgroundColor: plValues.map(v => v >= 0 ? '#10b981' : '#f43f5e'),
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { family: 'Inter', weight: 'bold', size: 10 },
+                            formatter: (v) => `€ ${v.toFixed(2)}`
+                        },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#f8fafc', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
+                    }
                 }
             });
         }
