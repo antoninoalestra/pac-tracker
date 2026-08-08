@@ -90,17 +90,14 @@
             backdrop-filter: blur(24px) saturate(1.2);
             display: flex;
             align-items: center;
+            justify-content: space-between;
             padding: 0 20px;
             z-index: 100;
             max-width: 900px;
             margin: 0 auto;
+            border-bottom: 1px solid var(--border);
         }
 
-        .nav-brand {
-            flex: 1;
-            display: flex;
-            align-items: center;
-        }
         .nav-brand h1 {
             font-size: 1.15rem;
             font-weight: 800;
@@ -111,9 +108,7 @@
         .nav-links {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
-            flex: 0 0 auto;
         }
         .nav-link {
             background: var(--surface);
@@ -153,35 +148,6 @@
         .nav-link.danger:hover {
             background: var(--accent-red-dim);
             border-color: rgba(255,80,0,0.4);
-        }
-
-        .nav-status {
-            flex: 1;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
-        .status-pill { 
-            background: var(--accent-green-dim); 
-            color: var(--accent-green); 
-            padding: 4px 10px; 
-            border-radius: 100px; 
-            font-size: 0.65rem; 
-            font-weight: 700; 
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            border: 1px solid rgba(0,200,5,0.2);
-        }
-        .status-pill.offline {
-            background: var(--accent-red-dim);
-            color: var(--accent-red);
-            border-color: rgba(255,80,0,0.2);
-        }
-        .status-pill.syncing {
-            background: var(--accent-blue-dim);
-            color: var(--accent-blue);
-            border-color: rgba(0,122,255,0.2);
         }
 
         .summary-section {
@@ -255,18 +221,20 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             padding: 16px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             transition: all 0.2s ease;
             cursor: pointer;
         }
         .asset-card:hover { border-color: var(--border-hover); }
         .asset-card:last-child { margin-bottom: 0; }
 
+        /* Card Top Row */
         .asset-card-top {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 12px;
+            gap: 12px;
+            margin-bottom: 14px;
         }
 
         .asset-icon {
@@ -297,38 +265,68 @@
             margin-top: 2px;
         }
 
-        .asset-values { text-align: right; }
+        .asset-values { 
+            text-align: right; 
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .asset-badge-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 2px;
+        }
+
         .asset-price {
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 800;
             letter-spacing: -0.02em;
+            color: var(--text-primary);
+            line-height: 1.2;
         }
+
         .asset-change {
             font-size: 0.8rem;
             font-weight: 700;
+            line-height: 1.2;
             margin-top: 2px;
         }
         .asset-change.positive { color: var(--accent-green); }
         .asset-change.negative { color: var(--accent-red); }
 
+        /* Griglia Dettagli Asset */
         .asset-details {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            gap: 10px;
             padding-top: 12px;
             border-top: 1px solid var(--border);
         }
 
-        .detail-cell { display: flex; flex-direction: column; gap: 3px; }
-        .detail-label { font-size: 0.65rem; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
-        .detail-value { font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); }
+        @media (max-width: 600px) {
+            .asset-card-top {
+                gap: 8px;
+            }
+            .asset-details {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px 10px;
+            }
+        }
+
+        .detail-cell { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .detail-label { font-size: 0.65rem; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+        .detail-value { font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .detail-input {
             background: var(--bg);
             border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 6px 10px;
+            padding: 6px 8px;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 700;
             width: 100%;
             outline: none;
@@ -680,9 +678,6 @@
                 <span>Reset</span>
             </button>
         </div>
-        <div class="nav-status">
-            <span class="status-pill" id="sync-status">Online</span>
-        </div>
     </nav>
 
     <div class="summary-section">
@@ -843,7 +838,8 @@
         Chart.register(ChartDataLabels);
     }
 
-    var UPDATE_INTERVAL_MS = 60000;
+    // UPDATE INTERVAL: 5 Minuti (300.000 ms)
+    var UPDATE_INTERVAL_MS = 300000;
     var COLORS = ['#00c805','#007aff','#ff9500','#af52de','#ff2d55','#5ac8fa','#ffcc00','#34c759'];
     
     // API Key Twelve Data
@@ -950,11 +946,8 @@
     function saveAll() {
         saveLocal();
         if (firebaseReady && portfolioRef && historyRef) {
-            setStatus('syncing');
             portfolioRef.set(assets).catch(function(){});
-            historyRef.set(txHistory).then(function(){ setStatus('online'); }).catch(function(){ setStatus('offline'); });
-        } else {
-            setStatus('offline');
+            historyRef.set(txHistory).catch(function(){});
         }
         render();
     }
@@ -967,15 +960,6 @@
         t.textContent = msg;
         t.classList.add('show');
         setTimeout(function() { t.classList.remove('show'); }, duration);
-    }
-
-    function setStatus(status) {
-        var el = document.getElementById('sync-status');
-        if (status === 'online') el.className = 'status-pill';
-        else if (status === 'offline') el.className = 'status-pill offline';
-        else if (status === 'syncing') el.className = 'status-pill syncing';
-        var map = { online: 'Online', offline: 'Offline', syncing: 'Sync...' };
-        el.textContent = map[status] || status;
     }
 
     function fmtCurrency(n) {
@@ -1051,10 +1035,8 @@
         return ISIN_MAP[clean] || clean;
     }
 
-    // Funzione fetchPrices aggiornata: Twelve Data come primario (con supporto CORS), Yahoo via Proxy come fallback
     function fetchPrices() {
         if (!isOnline) { showToast('Sei offline', 'error'); return; }
-        setStatus('syncing');
         var updated = 0;
         var now = new Date();
         var promises = [];
@@ -1067,7 +1049,6 @@
                 var baseTicker = cleanTicker.split('.')[0];
 
                 var fetchMethods = [
-                    // Strategy 1: Twelve Data API con Ticker (es. EUNL.DE)
                     function() {
                         var url = 'https://api.twelvedata.com/price?symbol=' + encodeURIComponent(cleanTicker) + '&apikey=' + TWELVE_DATA_KEY;
                         return fetchWithTimeout(url, 6000)
@@ -1079,7 +1060,6 @@
                                 return null;
                             });
                     },
-                    // Strategy 2: Twelve Data API con Exchange XETRA (es. EUNL:XETRA)
                     function() {
                         var url = 'https://api.twelvedata.com/price?symbol=' + encodeURIComponent(baseTicker + ':XETRA') + '&apikey=' + TWELVE_DATA_KEY;
                         return fetchWithTimeout(url, 6000)
@@ -1091,7 +1071,6 @@
                                 return null;
                             });
                     },
-                    // Strategy 3: Yahoo Finance via AllOrigins JSON Wrapper (/get?url=)
                     function() {
                         var targetUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(cleanTicker);
                         return fetchWithTimeout('https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl), 8000)
@@ -1102,7 +1081,6 @@
                                 return parsed && parsed.chart && parsed.chart.result && parsed.chart.result[0] && parsed.chart.result[0].meta && parsed.chart.result[0].meta.regularMarketPrice;
                             });
                     },
-                    // Strategy 4: Stooq via AllOrigins Wrapper
                     function() {
                         var stooqUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://stooq.com/q/l/?s=' + cleanTicker.toLowerCase() + '&f=sdgl10n1&e=json');
                         return fetchWithTimeout(stooqUrl, 8000)
@@ -1142,11 +1120,7 @@
             if (updated > 0) {
                 saveAll();
                 showToast(updated + ' prezzi aggiornati', 'success');
-            } else {
-                setStatus('online');
             }
-        }).catch(function() {
-            setStatus('online');
         });
     }
 
@@ -1240,7 +1214,7 @@
                         '</div>' +
                     '</div>' +
                     '<div class="asset-values">' +
-                        '<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:2px;">' +
+                        '<div class="asset-badge-container">' +
                             (a.manualPrice > 0 ? '<span class="tooltip-wrap" style="background:var(--accent-green-dim);color:var(--accent-green);padding:2px 8px;border-radius:100px;font-size:0.65rem;font-weight:800;border:1px solid rgba(0,200,5,0.2);">TR<span class="tt">Prezzo Trade Republic manuale</span></span>' : '<span class="tooltip-wrap" style="background:var(--accent-blue-dim);color:var(--accent-blue);padding:2px 8px;border-radius:100px;font-size:0.65rem;font-weight:800;border:1px solid rgba(0,122,255,0.2);">LIVE<span class="tt">Prezzo di Mercato Live (Twelve Data / Yahoo)</span></span>') +
                         '</div>' +
                         '<div class="asset-price tooltip-wrap">' + fmtCurrency(val) + '<span class="tt">Valore attuale = Quote × Prezzo effettivo</span></div>' +
@@ -1257,7 +1231,7 @@
                         'onchange="window.updateAsset(' + i + ', ' + "'quote'" + ', this.value)">' +
                     '</div>' +
                     '<div class="detail-cell">' +
-                        '<span class="detail-label tooltip-wrap">Prezzo ' + (a.manualPrice > 0 ? 'TR' : 'Live') + '<span class="tt">' + (a.manualPrice > 0 ? 'Prezzo Trade Republic inserito manualmente' : 'Prezzo Twelve Data / Yahoo aggiornato ogni 60s') + '</span></span>' +
+                        '<span class="detail-label tooltip-wrap">Prezzo ' + (a.manualPrice > 0 ? 'TR' : 'Live') + '<span class="tt">' + (a.manualPrice > 0 ? 'Prezzo Trade Republic inserito manualmente' : 'Prezzo Twelve Data / Yahoo aggiornato ogni 5 min') + '</span></span>' +
                         '<input type="text" inputmode="decimal" class="detail-input" ' +
                         'style="' + (a.manualPrice > 0 ? 'border-color:var(--accent-green);' : '') + '" ' +
                         'value="' + fmtInputNumber(effPrice, 2) + '" ' +
@@ -1265,8 +1239,8 @@
                     '</div>' +
                     '<div class="detail-cell">' +
                         '<span class="detail-label tooltip-wrap">Prezzo Market<span class="tt">Prezzo di riferimento da Twelve Data / Yahoo Finance</span></span>' +
-                        '<span class="detail-value" style="font-size:0.82rem;">' + fmtCurrency(a.price) + '</span>' +
-                        (a.manualPrice > 0 ? '<button class="btn-text" style="margin-top:4px;padding:2px 6px;font-size:0.65rem;" onclick="window.clearManualPrice(' + i + ')">Usa Live</button>' : '') +
+                        '<span class="detail-value">' + fmtCurrency(a.price) + '</span>' +
+                        (a.manualPrice > 0 ? '<button class="btn-text" style="margin-top:2px;padding:2px 4px;font-size:0.65rem;" onclick="window.clearManualPrice(' + i + ')">Usa Live</button>' : '') +
                     '</div>' +
                     '<div class="detail-cell">' +
                         '<span class="detail-label tooltip-wrap">PMC<span class="tt">Prezzo Medio di Carico =<br>Totale speso ÷ Quote totali acquistate</span></span>' +
@@ -1834,13 +1808,12 @@
             if (updateTimer) clearInterval(updateTimer);
             updateTimer = setInterval(fetchPrices, UPDATE_INTERVAL_MS);
 
-            window.addEventListener('online', function() { isOnline = true; setStatus('online'); fetchPrices(); });
-            window.addEventListener('offline', function() { isOnline = false; setStatus('offline'); });
+            window.addEventListener('online', function() { isOnline = true; fetchPrices(); });
+            window.addEventListener('offline', function() { isOnline = false; });
             document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAllModals(); });
             document.getElementById('csv-file-input').addEventListener('change', importCSV);
 
             applyAllKnownTR();
-            setStatus('online');
         } catch(err) {
             console.error('Init error:', err);
             showToast('Errore avvio: ' + err.message, 'error', 5000);
