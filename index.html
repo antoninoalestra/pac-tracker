@@ -279,7 +279,7 @@
 
         .asset-details {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 12px;
             padding-top: 12px;
             border-top: 1px solid var(--border);
@@ -370,53 +370,64 @@
         .bottom-nav {
             display: none;
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(18,18,18,0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border);
-            padding: 10px 16px 10px;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(24,24,24,0.92);
+            backdrop-filter: blur(24px) saturate(1.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 28px;
+            padding: 8px 12px;
             z-index: 99;
-            justify-content: space-around;
+            justify-content: center;
             align-items: center;
+            gap: 4px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+            max-width: 360px;
+            width: auto;
         }
 
         .nav-btn {
             background: none;
             border: none;
             color: var(--text-tertiary);
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 700;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
             cursor: pointer;
-            padding: 4px 12px;
-            transition: color 0.15s;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            min-width: 64px;
         }
-        .nav-btn.active, .nav-btn:active { color: var(--accent-green); }
-        .nav-icon { font-size: 1.3rem; }
+        .nav-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+        .nav-btn.active, .nav-btn:active { color: var(--accent-green); background: rgba(0,200,5,0.1); }
+        .nav-btn svg { width: 22px; height: 22px; stroke-width: 2; }
 
         .fab {
-            width: 56px;
-            height: 56px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
-            background: var(--accent-green);
+            background: linear-gradient(135deg, #00c805, #00a005);
             color: #000;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 16px rgba(0,200,5,0.3);
-            margin-top: -28px;
-            transition: transform 0.15s;
+            box-shadow: 0 4px 20px rgba(0,200,5,0.35), 0 0 0 4px rgba(0,200,5,0.08);
+            margin: 0 8px;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
         }
-        .fab:active { transform: scale(0.9); }
+        .fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(0,200,5,0.45), 0 0 0 6px rgba(0,200,5,0.12); }
+        .fab:active { transform: scale(0.92); }
 
         @media (max-width: 768px) {
             .bottom-nav { display: flex; }
@@ -559,7 +570,69 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+    
+        .tooltip-wrap {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        .tooltip-wrap .tt {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            line-height: 1.4;
+            white-space: nowrap;
+            z-index: 200;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            pointer-events: none;
+            transition: all 0.2s ease;
+            max-width: 260px;
+            text-align: center;
+        }
+        .tooltip-wrap .tt::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--surface-elevated);
+        }
+        .tooltip-wrap:hover .tt {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .tooltip-wrap.tt-right .tt {
+            left: auto;
+            right: 0;
+            transform: translateY(4px);
+            text-align: left;
+        }
+        .tooltip-wrap.tt-right:hover .tt {
+            transform: translateY(0);
+        }
+        .tooltip-wrap.tt-left .tt {
+            left: 0;
+            transform: translateY(4px);
+            text-align: left;
+        }
+        .tooltip-wrap.tt-left:hover .tt {
+            transform: translateY(0);
+        }
+
     </style>
+<base target="_blank">
 </head>
 <body>
     <div class="toast" id="toast"></div>
@@ -568,36 +641,38 @@
     <header>
         <div class="header-title">
             <h1>Portfolio</h1>
-            <p id="last-update-time">Pronto</p>
+            <p class="tooltip-wrap" id="last-update-time">Pronto<span class="tt">Ultimo aggiornamento prezzi Yahoo</span></p>
         </div>
-        <div class="status-pill" id="sync-status">Online</div>
+        <div class="status-pill tooltip-wrap" id="sync-status">Online<span class="tt">Stato sincronizzazione dati<br>con Firebase (cloud)</span></div>
     </header>
 
     <div class="summary-section">
-        <div class="summary-label">Valore Totale</div>
-        <div class="summary-value" id="total-val">0,00</div>
-        <div class="summary-sub" id="total-pl">+0,00 (0,00%)</div>
+        <div class="summary-label tooltip-wrap">Valore Totale<span class="tt">Valore complessivo del portfolio<br>alla data odierna</span></div>
+        <div class="summary-value tooltip-wrap" id="total-val">0,00<span class="tt">Somma di (Quote × Prezzo effettivo)<br>per tutti gli asset nel portfolio</span></div>
+        <div class="summary-sub tooltip-wrap" id="total-pl">+0,00 (0,00%)<span class="tt">Profitto/Perdita totale =<br>Valore attuale − Totale investito</span></div>
     </div>
 
     <div class="actions-scroll desktop-only">
         <button class="action-chip primary" onclick="window.openModal('pacModal')">+ Versamento</button>
         <button class="action-chip" onclick="window.triggerCSV()">Importa CSV</button>
         <button class="action-chip" onclick="window.openModal('assetModal')">+ Asset</button>
-        <button class="action-chip" onclick="window.fetchPrices()">Aggiorna</button>
+        <button class="action-chip" onclick="window.openModal('trPricesModal')">Prezzi TR</button>
+        <button class="action-chip" onclick="window.applyKnownTRPrices()">Fix Prezzi TR</button>
+        <button class="action-chip" onclick="window.fetchPrices()">Aggiorna Yahoo</button>
         <button class="action-chip danger" onclick="window.resetData()">Reset</button>
     </div>
 
     <div class="section-card">
         <div class="section-header">
             <div class="section-title">Asset</div>
-            <div class="section-count" id="asset-count">0</div>
+            <div class="section-count tooltip-wrap" id="asset-count">0<span class="tt">Numero di asset nel portfolio</span></div>
         </div>
         <div class="asset-list" id="assets-list"></div>
     </div>
 
     <div class="section-card">
         <div class="section-header">
-            <div class="section-title">Allocazione</div>
+            <div class="section-title tooltip-wrap">Allocazione<span class="tt">Distribuzione percentuale del valore<br>del portfolio tra gli asset</span></div>
         </div>
         <div class="chart-wrapper">
             <div class="chart-container">
@@ -608,7 +683,7 @@
 
     <div class="section-card">
         <div class="section-header">
-            <div class="section-title">Andamento Mensile</div>
+            <div class="section-title tooltip-wrap">Andamento Mensile<span class="tt">Totale investito per ogni mese<br>basato sullo storico transazioni</span></div>
         </div>
         <div class="chart-wrapper">
             <div class="chart-container">
@@ -619,7 +694,7 @@
 
     <div class="section-card">
         <div class="section-header">
-            <div class="section-title">Profit / Loss per Asset</div>
+            <div class="section-title tooltip-wrap">Profit / Loss per Asset<span class="tt">Profitto/Perdita assoluto<br>per ogni singolo asset</span></div>
         </div>
         <div class="chart-wrapper">
             <div class="chart-container">
@@ -630,8 +705,8 @@
 
     <div class="section-card">
         <div class="section-header">
-            <div class="section-title">Storico Transazioni</div>
-            <div class="section-count" id="tx-count">0</div>
+            <div class="section-title tooltip-wrap">Storico Transazioni<span class="tt">Elenco cronologico di tutti<br>gli acquisti e le vendite</span></div>
+            <div class="section-count tooltip-wrap" id="tx-count">0<span class="tt">Numero totale di transazioni registrate</span></div>
         </div>
         <div class="table-wrapper">
             <table class="data-table">
@@ -652,21 +727,15 @@
     </div>
 
     <div class="bottom-nav mobile-only">
-        <button class="nav-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-            <span class="nav-icon">O</span>
-            <span>Portfolio</span>
-        </button>
-        <button class="nav-btn" onclick="window.openModal('pacModal')">
-            <span class="nav-icon">+</span>
-            <span>Versa</span>
-        </button>
-        <button class="fab" onclick="window.openModal('pacModal')">+</button>
         <button class="nav-btn" onclick="window.triggerCSV()">
-            <span class="nav-icon">v</span>
-            <span>CSV</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Importa</span>
+        </button>
+        <button class="fab" onclick="window.openModal('pacModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
         <button class="nav-btn" onclick="window.fetchPrices()">
-            <span class="nav-icon">r</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             <span>Aggiorna</span>
         </button>
     </div>
@@ -685,19 +754,19 @@
                 <div class="input-row">
                     <div class="form-group" id="grp-amount">
                         <label class="form-label">Importo EUR</label>
-                        <input type="number" class="form-input" id="pac-amount" step="0.01" placeholder="100.00">
+                        <input type="text" inputmode="decimal" class="form-input" id="pac-amount" placeholder="100.55 o 100,55">
                         <div class="form-error">Inserisci un importo valido</div>
                     </div>
                     <div class="form-group" id="grp-shares">
                         <label class="form-label">Oppure Quote</label>
-                        <input type="number" class="form-input" id="pac-shares" step="0.000001" placeholder="0.00">
+                        <input type="text" inputmode="decimal" class="form-input" id="pac-shares" placeholder="0.00 o 0,00">
                         <div class="form-error">Inserisci quote valide</div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Data (opzionale)</label>
                     <input type="date" class="form-input" id="pac-date">
-                    <div class="form-hint">Lascia vuoto per usare la data odierna</div>
+                    <div class="form-hint">Modifica se il versamento è di un giorno diverso</div>
                 </div>
                 <button class="btn-full primary" onclick="window.submitPac()">Conferma Versamento</button>
             </div>
@@ -725,12 +794,12 @@
                 <div class="input-row">
                     <div class="form-group" id="grp-quote">
                         <label class="form-label">Quote Iniziali</label>
-                        <input type="number" class="form-input" id="new-quote" step="0.000001" value="0">
+                        <input type="text" inputmode="decimal" class="form-input" id="new-quote" value="0">
                         <div class="form-error">Valore non valido</div>
                     </div>
                     <div class="form-group" id="grp-price">
                         <label class="form-label">Prezzo Attuale EUR</label>
-                        <input type="number" class="form-input" id="new-price" step="0.01" placeholder="0.00">
+                        <input type="text" inputmode="decimal" class="form-input" id="new-price" placeholder="0.00 o 0,00">
                         <div class="form-error">Prezzo richiesto</div>
                     </div>
                 </div>
@@ -773,7 +842,9 @@
     var updateTimer = null;
 
     var defaultAssets = [
-        { id: '1', name: 'Eurozone Gov Bond', isin: 'EIGB.DE', quote: 0, price: 23.80, lastBuyPrice: 23.80, color: COLORS[2] }
+        { id: '1', name: 'Eurozone Gov Bond', isin: 'EIGB.DE', quote: 0, price: 23.80, lastBuyPrice: 23.80, color: COLORS[2], manualPrice: 0 },
+        { id: '2', name: 'MSCI World', isin: 'EUNL.DE', quote: 0, price: 128.55, lastBuyPrice: 128.55, color: COLORS[0], manualPrice: 128.55 },
+        { id: '3', name: 'MSCI Emerging Markets', isin: 'IS3N.DE', quote: 0, price: 46.43, lastBuyPrice: 46.43, color: COLORS[1], manualPrice: 46.43 }
     ];
 
     function ensureArray(val) {
@@ -782,10 +853,13 @@
         return [];
     }
 
+    var knownTRPrices = {};
+
     function loadLocal() {
         try {
             var a = localStorage.getItem('pac_assets');
             var h = localStorage.getItem('pac_history');
+            var k = localStorage.getItem('pac_known_tr_prices');
             if (a) {
                 var parsed = JSON.parse(a);
                 assets = ensureArray(parsed);
@@ -794,11 +868,42 @@
                 var parsedH = JSON.parse(h);
                 txHistory = ensureArray(parsedH);
             }
+            if (k) {
+                knownTRPrices = JSON.parse(k);
+            }
         } catch(e) {
             console.warn('loadLocal error:', e);
         }
         if (!assets || !assets.length) {
             assets = JSON.parse(JSON.stringify(defaultAssets));
+        }
+    }
+
+    function saveKnownTRPrice(ticker, price) {
+        if (!ticker || price <= 0) return;
+        knownTRPrices[ticker.toUpperCase()] = price;
+        try {
+            localStorage.setItem('pac_known_tr_prices', JSON.stringify(knownTRPrices));
+        } catch(e) {}
+    }
+
+    function applyKnownTRToAsset(asset) {
+        var key = (asset.isin || '').toUpperCase();
+        if (key && knownTRPrices[key] && knownTRPrices[key] > 0) {
+            asset.manualPrice = knownTRPrices[key];
+            return true;
+        }
+        return false;
+    }
+
+    function applyAllKnownTR() {
+        var applied = 0;
+        assets.forEach(function(a) {
+            if (applyKnownTRToAsset(a)) applied++;
+        });
+        if (applied > 0) {
+            saveAll();
+            showToast(applied + ' prezzi TR auto-applicati', 'success');
         }
     }
 
@@ -849,6 +954,47 @@
         d = d || 2;
         n = typeof n === 'number' ? n : 0;
         return n.toLocaleString('it-IT', {minimumFractionDigits: d, maximumFractionDigits: d});
+    }
+
+    
+    function getDisplayPrice(asset) {
+        if (asset.manualPrice && asset.manualPrice > 0) return asset.manualPrice;
+        return asset.price;
+    }
+
+    // Parsa input decimale: gestisce 128.55, 128,55, 1.234,56, 1,234.56
+    function parseDecimalInput(val) {
+        if (typeof val !== 'string') val = String(val);
+        val = val.trim();
+        if (!val) return NaN;
+        var lastDot = val.lastIndexOf('.');
+        var lastComma = val.lastIndexOf(',');
+        var hasDot = lastDot !== -1;
+        var hasComma = lastComma !== -1;
+        if (hasDot && hasComma) {
+            // Entrambi presenti: l'ultimo è il separatore decimale
+            if (lastComma > lastDot) {
+                // Formato IT: 1.234,56 → rimuovi punti, virgola→punto
+                return parseFloat(val.replace(/\./g, '').replace(',', '.'));
+            } else {
+                // Formato EN: 1,234.56 → rimuovi virgole
+                return parseFloat(val.replace(/,/g, ''));
+            }
+        } else if (hasComma && !hasDot) {
+            // Solo virgola: sostituisci con punto
+            return parseFloat(val.replace(',', '.'));
+        } else if (hasDot && !hasComma) {
+            // Solo punto: potrebbe essere decimale o migliaia
+            // Se c'è un solo punto e 1-2 cifre dopo → decimale (es. 128.55)
+            // Se ci sono 3 cifre dopo l'ultimo punto → migliaia (es. 1.234)
+            var parts = val.split('.');
+            if (parts.length === 2 && parts[1].length <= 2) {
+                return parseFloat(val); // decimale
+            } else {
+                return parseFloat(val.replace(/\./g, '')); // migliaia
+            }
+        }
+        return parseFloat(val);
     }
 
     function fmtInputNumber(n, d) {
@@ -993,7 +1139,7 @@
 
     function renderSummary() {
         var totalVal = 0;
-        assets.forEach(function(a) { totalVal += (a.quote * a.price); });
+        assets.forEach(function(a) { totalVal += (a.quote * getDisplayPrice(a)); });
         var invested = getTotalInvested();
         var pl = totalVal - invested;
         var plPerc = invested > 0 ? (pl / invested) * 100 : 0;
@@ -1012,7 +1158,7 @@
         select.innerHTML = '';
 
         var totalVal = 0;
-        assets.forEach(function(a) { totalVal += (a.quote * a.price); });
+        assets.forEach(function(a) { totalVal += (a.quote * getDisplayPrice(a)); });
         document.getElementById('asset-count').textContent = assets.length;
 
         if (!assets.length) {
@@ -1021,12 +1167,13 @@
         }
 
         assets.forEach(function(a, i) {
-            var val = a.quote * a.price;
+            var effPrice = getDisplayPrice(a);
+            var val = a.quote * effPrice;
             var weight = totalVal > 0 ? ((val / totalVal) * 100).toFixed(1) : '0.0';
             var pmc = getPMC(a.isin, a.name);
             var spent = getTotalSpent(a.isin, a.name);
             var pl = val - spent;
-            var plPerc = pmc > 0 ? ((a.price - pmc) / pmc) * 100 : 0;
+            var plPerc = pmc > 0 ? ((effPrice - pmc) / pmc) * 100 : 0;
             var isPos = pl >= 0;
             var color = a.color || COLORS[i % COLORS.length];
             var initials = a.name.split(' ').map(function(w) { return w[0]; }).join('').substring(0,2).toUpperCase();
@@ -1039,29 +1186,40 @@
                         '<div class="asset-icon" style="background:' + color + '22;color:' + color + ';">' + initials + '</div>' +
                         '<div class="asset-meta">' +
                             '<div class="asset-name">' + a.name + '</div>' +
-                            '<div class="asset-isin">' + a.isin + ' &middot; ' + weight + '%</div>' +
+                            '<div class="asset-isin tooltip-wrap">' + a.isin + ' &middot; ' + weight + '%<span class="tt">Allocazione: percentuale del portfolio<br>rappresentata da questo asset</span></div>' +
                         '</div>' +
                     '</div>' +
                     '<div class="asset-values">' +
-                        '<div class="asset-price">' + fmtCurrency(val) + '</div>' +
-                        '<div class="asset-change ' + (isPos ? 'positive' : 'negative') + '">' +
+                        '<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:2px;">' +
+                            (a.manualPrice > 0 ? '<span class="tooltip-wrap" style="background:var(--accent-green-dim);color:var(--accent-green);padding:2px 8px;border-radius:100px;font-size:0.65rem;font-weight:800;border:1px solid rgba(0,200,5,0.2);">TR<span class="tt">Prezzo Trade Republic manuale</span></span>' : '<span class="tooltip-wrap" style="background:var(--accent-blue-dim);color:var(--accent-blue);padding:2px 8px;border-radius:100px;font-size:0.65rem;font-weight:800;border:1px solid rgba(0,122,255,0.2);">YAHOO<span class="tt">Prezzo Yahoo Finance (ritardo 15-20min)</span></span>') +
+                        '</div>' +
+                        '<div class="asset-price tooltip-wrap">' + fmtCurrency(val) + '<span class="tt">Valore attuale = Quote × Prezzo effettivo</span></div>' +
+                        '<div class="asset-change ' + (isPos ? 'positive' : 'negative') + ' tooltip-wrap">' +
                             (isPos ? '+' : '') + fmtCurrency(pl) + ' (' + (isPos ? '+' : '') + fmtNumber(plPerc, 1) + '%)' +
+                            '<span class="tt">P/L = Valore attuale − Totale speso in acquisti</span>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div class="asset-details">' +
                     '<div class="detail-cell">' +
-                        '<span class="detail-label">Quote</span>' +
-                        '<input type="number" class="detail-input" step="0.000001" value="' + fmtInputNumber(a.quote, 6) + '" ' +
+                        '<span class="detail-label tooltip-wrap">Quote<span class="tt">Numero di quote detenute</span></span>' +
+                        '<input type="text" inputmode="decimal" class="detail-input" value="' + fmtInputNumber(a.quote, 6) + '" ' +
                         'onchange="window.updateAsset(' + i + ', ' + "'quote'" + ', this.value)">' +
                     '</div>' +
                     '<div class="detail-cell">' +
-                        '<span class="detail-label">Prezzo Live</span>' +
-                        '<input type="number" class="detail-input" step="0.01" value="' + fmtInputNumber(a.price, 2) + '" ' +
-                        'onchange="window.updateAsset(' + i + ', ' + "'price'" + ', this.value)">' +
+                        '<span class="detail-label tooltip-wrap">Prezzo ' + (a.manualPrice > 0 ? 'TR' : 'Live') + '<span class="tt">' + (a.manualPrice > 0 ? 'Prezzo Trade Republic inserito manualmente' : 'Prezzo Yahoo Finance aggiornato ogni 60s') + '</span></span>' +
+                        '<input type="text" inputmode="decimal" class="detail-input" ' +
+                        'style="' + (a.manualPrice > 0 ? 'border-color:var(--accent-green);' : '') + '" ' +
+                        'value="' + fmtInputNumber(effPrice, 2) + '" ' +
+                        'onchange="window.updateAsset(' + i + ', ' + "'manualPrice'" + ', this.value)">' +
                     '</div>' +
                     '<div class="detail-cell">' +
-                        '<span class="detail-label">PMC</span>' +
+                        '<span class="detail-label tooltip-wrap">Prezzo Yahoo<span class="tt">Prezzo di riferimento da Yahoo Finance<br>(Xetra, ritardo 15-20 min)</span></span>' +
+                        '<span class="detail-value" style="font-size:0.82rem;">' + fmtCurrency(a.price) + '</span>' +
+                        (a.manualPrice > 0 ? '<button class="btn-text" style="margin-top:4px;padding:2px 6px;font-size:0.65rem;" onclick="window.clearManualPrice(' + i + ')">Usa Live</button>' : '') +
+                    '</div>' +
+                    '<div class="detail-cell">' +
+                        '<span class="detail-label tooltip-wrap">PMC<span class="tt">Prezzo Medio di Carico =<br>Totale speso ÷ Quote totali acquistate</span></span>' +
                         '<span class="detail-value">' + (pmc > 0 ? fmtCurrency(pmc) : '-') + '</span>' +
                     '</div>' +
                 '</div>' +
@@ -1099,9 +1257,9 @@
                     '<div class="tx-asset-sub">' + tx.assetIsin + '</div>' +
                 '</td>' +
                 '<td><span class="tx-type ' + (isSell ? 'sell' : 'buy') + '">' + (isSell ? 'VENDITA' : 'ACQUISTO') + '</span></td>' +
-                '<td>' + fmtCurrency(tx.amount) + '</td>' +
-                '<td>' + (isSell ? '' : '+') + fmtNumber(tx.shares, 6) + '</td>' +
-                '<td>' + fmtCurrency(tx.price) + '</td>' +
+                '<td class="tooltip-wrap">' + fmtCurrency(tx.amount) + '<span class="tt">Importo totale versato<br>per questa transazione</span></td>' +
+                '<td class="tooltip-wrap">' + (isSell ? '' : '+') + fmtNumber(tx.shares, 6) + '<span class="tt">Numero di quote ' + (isSell ? 'vendute' : 'acquistate') + '</span></td>' +
+                '<td class="tooltip-wrap">' + fmtCurrency(tx.price) + '<span class="tt">Prezzo per singola quota<br>al momento della transazione</span></td>' +
                 '<td><button class="btn-text danger" onclick="window.deleteTx(' + "'" + tx.id + "'" + ')">x</button></td>';
             tbody.appendChild(tr);
         });
@@ -1119,7 +1277,7 @@
             data: {
                 labels: active.map(function(a) { return a.name; }),
                 datasets: [{
-                    data: active.map(function(a) { return a.quote * a.price; }),
+                    data: active.map(function(a) { return a.quote * getDisplayPrice(a); }),
                     backgroundColor: active.map(function(a, i) { return a.color || COLORS[i % COLORS.length]; }),
                     borderColor: '#121212',
                     borderWidth: 3
@@ -1167,7 +1325,7 @@
 
         var plAssets = assets.filter(function(a) { return a.quote > 0; });
         var plVals = plAssets.map(function(a) {
-            var val = a.quote * a.price;
+            var val = a.quote * getDisplayPrice(a);
             var spent = getTotalSpent(a.isin, a.name);
             return val - spent;
         });
@@ -1198,13 +1356,13 @@
 
     function submitPac() {
         var idx = parseInt(document.getElementById('pac-asset').value);
-        var amount = parseFloat(document.getElementById('pac-amount').value);
-        var shares = parseFloat(document.getElementById('pac-shares').value);
+        var amount = parseDecimalInput(document.getElementById('pac-amount').value);
+        var shares = parseDecimalInput(document.getElementById('pac-shares').value);
         var dateInput = document.getElementById('pac-date').value;
 
         if (!assets[idx]) return;
         var asset = assets[idx];
-        var price = asset.price;
+        var price = getDisplayPrice(asset);
 
         var validAmount = validateGroup('grp-amount', !isNaN(amount) && amount > 0);
         var validShares = validateGroup('grp-shares', !isNaN(shares) && shares > 0);
@@ -1254,8 +1412,8 @@
     function addAsset() {
         var name = document.getElementById('new-name').value.trim();
         var isin = document.getElementById('new-isin').value.trim().toUpperCase();
-        var quote = parseFloat(document.getElementById('new-quote').value) || 0;
-        var price = parseFloat(document.getElementById('new-price').value) || 0;
+        var quote = parseDecimalInput(document.getElementById('new-quote').value) || 0;
+        var price = parseDecimalInput(document.getElementById('new-price').value) || 0;
 
         var vName = validateGroup('grp-name', name.length > 0);
         var vIsin = validateGroup('grp-isin', isin.length > 0);
@@ -1265,12 +1423,15 @@
 
         var tickerMapped = ISIN_MAP[isin] || isin;
 
-        assets.push({
+        var newAsset = {
             id: Date.now().toString(),
             name: name, isin: tickerMapped, quote: quote, price: price,
             lastBuyPrice: price,
-            color: COLORS[assets.length % COLORS.length]
-        });
+            color: COLORS[assets.length % COLORS.length],
+            manualPrice: 0
+        };
+        applyKnownTRToAsset(newAsset);
+        assets.push(newAsset);
 
         document.getElementById('new-name').value = '';
         document.getElementById('new-isin').value = '';
@@ -1282,12 +1443,106 @@
     }
 
     function updateAsset(idx, key, val) {
-        var clean = val.replace(/\./g, '').replace(',', '.');
-        var num = parseFloat(clean);
+        var num = parseDecimalInput(val);
         if (isNaN(num)) return;
+        if (key === 'manualPrice') {
+            assets[idx].manualPrice = num;
+            if (num > 0) saveKnownTRPrice(assets[idx].isin, num);
+            saveAll();
+            return;
+        }
         assets[idx][key] = num;
         saveAll();
     }
+    function clearManualPrice(idx) {
+        assets[idx].manualPrice = 0;
+        saveAll();
+        showToast('Prezzo Yahoo ripristinato', 'info');
+    }
+    window.clearManualPrice = clearManualPrice;
+
+    function renderTRPricesModal() {
+        var container = document.getElementById('tr-prices-list');
+        if (!container) return;
+        container.innerHTML = '';
+        if (!assets.length) {
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-title">Nessun asset</div></div>';
+            return;
+        }
+        assets.forEach(function(a, i) {
+            var effPrice = getDisplayPrice(a);
+            var row = document.createElement('div');
+            row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);';
+            row.innerHTML = 
+                '<div style="flex:1;min-width:0;">' +
+                    '<div style="font-weight:700;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + a.name + '</div>' +
+                    '<div style="font-size:0.7rem;color:var(--text-tertiary);font-weight:600;">' + a.isin + '</div>' +
+                '</div>' +
+                '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">' +
+                    '<input type="text" inputmode="decimal" class="form-input" style="width:120px;padding:10px 12px;font-size:0.9rem;text-align:right;' + (a.manualPrice > 0 ? 'border-color:var(--accent-green);' : '') + '" ' +
+                    'value="' + (a.manualPrice > 0 ? fmtInputNumber(a.manualPrice, 2) : '') + '" ' +
+                    'placeholder="' + fmtInputNumber(a.price, 2) + '" ' +
+                    'onchange="window.updateTRPrice(' + i + ', this.value)" ' +
+                    'id="tr-input-' + i + '">' +
+                    '<div style="font-size:0.65rem;color:var(--text-tertiary);font-weight:600;">Yahoo: ' + fmtCurrency(a.price) + '</div>' +
+                '</div>';
+            container.appendChild(row);
+        });
+    }
+
+    function updateTRPrice(idx, val) {
+        var num = parseDecimalInput(val);
+        if (isNaN(num) || num <= 0) {
+            assets[idx].manualPrice = 0;
+        } else {
+            assets[idx].manualPrice = num;
+            saveKnownTRPrice(assets[idx].isin, num);
+        }
+        render();
+        renderTRPricesModal();
+    }
+    window.updateTRPrice = updateTRPrice;
+
+    function saveAllTRPrices() {
+        saveAll();
+        closeModal('trPricesModal');
+        showToast('Prezzi TR salvati', 'success');
+    }
+    window.saveAllTRPrices = saveAllTRPrices;
+
+    var origOpenModal = window.openModal;
+    window.openModal = function(id) {
+        if (id === 'trPricesModal') renderTRPricesModal();
+        if (id === 'pacModal') {
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('pac-date').value = today;
+        }
+        origOpenModal(id);
+    };
+
+    function applyKnownTRPrices() {
+        var known = {
+            'EUNL.DE': 128.55,
+            'IE00B4L5Y983': 128.55,
+            'IS3N.DE': 46.43,
+            'IE00BKM4GZ66': 46.43
+        };
+        var updated = 0;
+        assets.forEach(function(a) {
+            var key = a.isin ? a.isin.toUpperCase() : '';
+            if (known[key] && a.manualPrice !== known[key]) {
+                a.manualPrice = known[key];
+                updated++;
+            }
+        });
+        if (updated > 0) {
+            saveAll();
+            showToast(updated + ' prezzi TR aggiornati', 'success');
+        } else {
+            showToast('Prezzi TR già corretti', 'info');
+        }
+    }
+    window.applyKnownTRPrices = applyKnownTRPrices;
 
     function deleteAsset(idx) {
         var a = assets[idx];
@@ -1422,7 +1677,8 @@
                     assetMap[mapped] = {
                         id: Date.now().toString() + Math.random(),
                         name: name, isin: mapped, quote: 0, price: priceVal, lastBuyPrice: priceVal,
-                        color: COLORS[Object.keys(assetMap).length % COLORS.length]
+                        color: COLORS[Object.keys(assetMap).length % COLORS.length],
+                        manualPrice: 0
                     };
                 }
                 if (type === 'BUY') {
@@ -1532,6 +1788,7 @@
             document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAllModals(); });
             document.getElementById('csv-file-input').addEventListener('change', importCSV);
 
+            applyAllKnownTR();
             setStatus('online');
         } catch(err) {
             console.error('Init error:', err);
@@ -1541,5 +1798,22 @@
 
     document.addEventListener('DOMContentLoaded', init);
     </script>
+
+    <div class="modal-overlay" id="trPricesModal" onclick="window.closeModalOnBackdrop(event, 'trPricesModal')">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Aggiorna Prezzi Trade Republic</h3>
+                <button class="modal-close" onclick="window.closeModal('trPricesModal')">x</button>
+            </div>
+            <div class="modal-body" id="tr-prices-body">
+                <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">
+                    Inserisci i prezzi che leggi sull'app Trade Republic. Verranno salvati automaticamente e riapplicati al prossimo avvio.
+                </p>
+                <div id="tr-prices-list"></div>
+                <button class="btn-full primary" style="margin-top:16px;" onclick="window.saveAllTRPrices()">Salva Tutti</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
