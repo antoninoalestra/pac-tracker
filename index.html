@@ -560,7 +560,6 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
     </style>
-<base target="_blank">
 </head>
 <body>
     <div class="toast" id="toast"></div>
@@ -765,7 +764,7 @@
     var db = null, portfolioRef = null, historyRef = null;
     var firebaseReady = false;
     var assets = [];
-    var history = [];
+    var txHistory = []; // RENAMED: evita conflitti con window.history
     var charts = {};
     var isOnline = navigator.onLine;
     var updateTimer = null;
@@ -774,7 +773,6 @@
         { id: '1', name: 'Eurozone Gov Bond', isin: 'EIGB.DE', quote: 0, price: 23.80, lastBuyPrice: 23.80, color: COLORS[2] }
     ];
 
-    // FIX: assicura che il valore sia sempre un array
     function ensureArray(val) {
         if (Array.isArray(val)) return val;
         if (val && typeof val === 'object') return Object.values(val);
@@ -791,7 +789,7 @@
             }
             if (h) {
                 var parsedH = JSON.parse(h);
-                history = ensureArray(parsedH);
+                txHistory = ensureArray(parsedH);
             }
         } catch(e) {
             console.warn('loadLocal error:', e);
@@ -804,7 +802,7 @@
     function saveLocal() {
         try {
             localStorage.setItem('pac_assets', JSON.stringify(assets));
-            localStorage.setItem('pac_history', JSON.stringify(history));
+            localStorage.setItem('pac_history', JSON.stringify(txHistory));
         } catch(e) {}
     }
 
@@ -813,7 +811,7 @@
         if (firebaseReady && portfolioRef && historyRef) {
             setStatus('syncing');
             portfolioRef.set(assets).catch(function(){});
-            historyRef.set(history).then(function(){ setStatus('online'); }).catch(function(){ setStatus('offline'); });
+            historyRef.set(txHistory).then(function(){ setStatus('online'); }).catch(function(){ setStatus('offline'); });
         } else {
             setStatus('offline');
         }
@@ -885,8 +883,8 @@
             if (!asset.isin) return;
             var p = new Promise(function(resolve) {
                 var proxies = [
-                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + asset.isin),
-                    'https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/' + asset.isin
+                    'https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/' + asset.isin,
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + asset.isin)
                 ];
 
                 function tryProxy(index) {
@@ -926,7 +924,7 @@
     }
 
     function getPMC(isin, name) {
-        var txs = history.filter(function(tx) {
+        var txs = txHistory.filter(function(tx) {
             return (tx.assetIsin === isin || tx.assetName === name) && tx.type === 'BUY';
         });
         var spent = 0, shares = 0;
@@ -935,13 +933,16 @@
     }
 
     function getTotalSpent(isin, name) {
-        return history.filter(function(tx) {
+        return txHistory.filter(function(tx) {
             return (tx.assetIsin === isin || tx.assetName === name) && tx.type === 'BUY';
         }).reduce(function(s, tx) { return s + (tx.amount || 0); }, 0);
     }
 
     function getTotalInvested() {
-        return history.filter(function(tx) { return tx.type === 'BUY'; }).reduce(function(s, tx) { return s + (tx.amount || 0); }, 0);
+        var activeIsins = assets.filter(function(a) { return a.quote > 0.0001; }).map(function(a) { return a.isin; });
+        return txHistory.filter(function(tx) { 
+            return tx.type === 'BUY' && (activeIsins.indexOf(tx.assetIsin) !== -1 || activeIsins.indexOf('EUNL.DE') !== -1 || activeIsins.indexOf('IS3N.DE') !== -1 || activeIsins.indexOf('IE00B4L5Y983') !== -1 || activeIsins.indexOf('IE00BKM4GZ66') !== -1);
+        }).reduce(function(s, tx) { return s + (tx.amount || 0); }, 0);
     }
 
     function render() {
@@ -1041,14 +1042,14 @@
     function renderHistory() {
         var tbody = document.getElementById('history-tbody');
         tbody.innerHTML = '';
-        document.getElementById('tx-count').textContent = history.length;
+        document.getElementById('tx-count').textContent = txHistory.length;
 
-        if (!history.length) {
+        if (!txHistory.length) {
             tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-tertiary);padding:24px;">Nessuna transazione</td></tr>';
             return;
         }
 
-        var sorted = history.slice().reverse();
+        var sorted = txHistory.slice().reverse();
         sorted.forEach(function(tx) {
             var isSell = tx.type === 'SELL';
             var tr = document.createElement('tr');
@@ -1102,7 +1103,7 @@
         });
 
         var monthly = {};
-        history.filter(function(tx) { return tx.type === 'BUY'; }).forEach(function(tx) {
+        txHistory.filter(function(tx) { return tx.type === 'BUY'; }).forEach(function(tx) {
             var parts = tx.date.split('/');
             if (parts.length === 3) {
                 var key = parts[2] + '-' + parts[1];
@@ -1192,7 +1193,7 @@
             dateStr = new Date().toLocaleDateString('it-IT');
         }
 
-        history.push({
+        txHistory.push({
             id: Date.now().toString() + Math.random().toString(36).substr(2,5),
             date: dateStr,
             assetName: asset.name,
@@ -1257,11 +1258,11 @@
 
     function deleteTx(id) {
         var idx = -1;
-        for (var i = 0; i < history.length; i++) {
-            if (history[i].id === id) { idx = i; break; }
+        for (var i = 0; i < txHistory.length; i++) {
+            if (txHistory[i].id === id) { idx = i; break; }
         }
         if (idx === -1) return;
-        var tx = history[idx];
+        var tx = txHistory[idx];
         if (!confirm('Cancellare la transazione del ' + tx.date + '?')) return;
 
         var asset = null;
@@ -1273,7 +1274,7 @@
         if (asset && tx.type === 'BUY') {
             asset.quote = Math.max(0, asset.quote - tx.shares);
         }
-        history.splice(idx, 1);
+        txHistory.splice(idx, 1);
         saveAll();
         showToast('Transazione cancellata', 'info');
     }
@@ -1281,7 +1282,7 @@
     function resetData() {
         if (!confirm('AZZERAMENTO TOTALE. Vuoi davvero cancellare TUTTO?')) return;
         assets = JSON.parse(JSON.stringify(defaultAssets));
-        history = [];
+        txHistory = [];
         saveAll();
         showToast('Dati azzerati', 'success');
     }
@@ -1334,6 +1335,7 @@
 
             var imported = 0;
             var assetMap = {};
+            txHistory = []; // Reset storico prima dell'import per calcolo pulito da zero
 
             for (var i = 1; i < lines.length; i++) {
                 var cols = parseCSVLine(lines[i]);
@@ -1370,7 +1372,7 @@
                 var type = cols[idx.type];
                 var txId = cols[idx.id] || (Date.now().toString() + i);
 
-                history.push({
+                txHistory.push({
                     id: txId, date: formattedDate, assetName: name, assetIsin: isin,
                     amount: amountVal, shares: type === 'SELL' ? -sharesVal : sharesVal, price: priceVal, type: type
                 });
@@ -1391,16 +1393,10 @@
                 }
             }
 
+            assets = []; // Reinizializza gli asset sulla base dell'import
             Object.keys(assetMap).forEach(function(key) {
                 var newAsset = assetMap[key];
-                if (newAsset.quote <= 0.0001) return;
-                var existing = null;
-                for (var k = 0; k < assets.length; k++) {
-                    if (assets[k].isin === newAsset.isin) { existing = assets[k]; break; }
-                }
-                if (existing) {
-                    existing.quote += newAsset.quote;
-                } else {
+                if (newAsset.quote > 0.0001 || key === 'EIGB.DE') {
                     assets.push(newAsset);
                 }
             });
@@ -1436,6 +1432,19 @@
         document.body.style.overflow = '';
     }
 
+    // Esponi le funzioni al contesto globale window per la chiamata dagli attributi onclick
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.closeModalOnBackdrop = closeModalOnBackdrop;
+    window.triggerCSV = triggerCSV;
+    window.fetchPrices = fetchPrices;
+    window.resetData = resetData;
+    window.submitPac = submitPac;
+    window.addAsset = addAsset;
+    window.updateAsset = updateAsset;
+    window.deleteAsset = deleteAsset;
+    window.deleteTx = deleteTx;
+
     function init() {
         try {
             loadLocal();
@@ -1459,7 +1468,7 @@
                     historyRef.on('value', function(snap) {
                         var data = snap.val();
                         if (data) { 
-                            history = ensureArray(data); 
+                            txHistory = ensureArray(data); 
                             saveLocal(); 
                             render(); 
                         }
