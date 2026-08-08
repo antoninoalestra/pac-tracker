@@ -747,7 +747,7 @@
     var UPDATE_INTERVAL_MS = 60000;
     var COLORS = ['#00c805','#007aff','#ff9500','#af52de','#ff2d55','#5ac8fa','#ffcc00','#34c759'];
     
-    // Mappatura completa ISIN Trade Republic -> Ticker Yahoo Finance
+    // Mappatura completa ISIN Trade Republic -> Ticker Yahoo Finance (Xetra)
     var ISIN_MAP = {
         'IE00B4L5Y983': 'EUNL.DE',
         'IE00BKM4GZ66': 'IS3N.DE',
@@ -893,8 +893,9 @@
             var ticker = getTicker(asset.isin);
             if (!ticker) return;
             var p = new Promise(function(resolve) {
+                // Chiamata via Proxy CORS per evitare net::ERR_FAILED e restrizioni di dominio
                 var proxies = [
-                    'https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/' + ticker,
+                    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + ticker),
                     'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + ticker)
                 ];
 
