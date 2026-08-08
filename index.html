@@ -220,8 +220,6 @@
         .summary-sub.positive { color: var(--accent-green); }
         .summary-sub.negative { color: var(--accent-red); }
 
-
-
         .section-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -606,7 +604,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
-    
+
         .tooltip-wrap {
             position: relative;
             display: inline-block;
@@ -622,7 +620,7 @@
             background: var(--surface-elevated);
             color: var(--text-secondary);
             padding: 8px 14px;
-            border-radius: 10px;
+            border-radius: 100px;
             font-size: 0.72rem;
             font-weight: 600;
             line-height: 1.4;
@@ -649,24 +647,6 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
-        .tooltip-wrap.tt-right .tt {
-            left: auto;
-            right: 0;
-            transform: translateY(4px);
-            text-align: left;
-        }
-        .tooltip-wrap.tt-right:hover .tt {
-            transform: translateY(0);
-        }
-        .tooltip-wrap.tt-left .tt {
-            left: 0;
-            transform: translateY(4px);
-            text-align: left;
-        }
-        .tooltip-wrap.tt-left:hover .tt {
-            transform: translateY(0);
-        }
-
     </style>
 <base target="_blank">
 </head>
@@ -866,6 +846,9 @@
     var UPDATE_INTERVAL_MS = 60000;
     var COLORS = ['#00c805','#007aff','#ff9500','#af52de','#ff2d55','#5ac8fa','#ffcc00','#34c759'];
     
+    // API Key Twelve Data
+    var TWELVE_DATA_KEY = 'a17275c425b648a08bd04b81c070f667';
+
     // Mappatura completa ISIN Trade Republic -> Ticker Yahoo Finance (Xetra)
     var ISIN_MAP = {
         'IE00B4L5Y983': 'EUNL.DE',
@@ -1006,13 +989,11 @@
         return n.toLocaleString('it-IT', {minimumFractionDigits: d, maximumFractionDigits: d});
     }
 
-    
     function getDisplayPrice(asset) {
         if (asset.manualPrice && asset.manualPrice > 0) return asset.manualPrice;
         return asset.price;
     }
 
-    // Parsa input decimale: gestisce 128.55, 128,55, 1.234,56, 1,234.56
     function parseDecimalInput(val) {
         if (typeof val !== 'string') val = String(val);
         val = val.trim();
@@ -1022,26 +1003,19 @@
         var hasDot = lastDot !== -1;
         var hasComma = lastComma !== -1;
         if (hasDot && hasComma) {
-            // Entrambi presenti: l'ultimo è il separatore decimale
             if (lastComma > lastDot) {
-                // Formato IT: 1.234,56 → rimuovi punti, virgola→punto
                 return parseFloat(val.replace(/\./g, '').replace(',', '.'));
             } else {
-                // Formato EN: 1,234.56 → rimuovi virgole
                 return parseFloat(val.replace(/,/g, ''));
             }
         } else if (hasComma && !hasDot) {
-            // Solo virgola: sostituisci con punto
             return parseFloat(val.replace(',', '.'));
         } else if (hasDot && !hasComma) {
-            // Solo punto: potrebbe essere decimale o migliaia
-            // Se c'è un solo punto e 1-2 cifre dopo → decimale (es. 128.55)
-            // Se ci sono 3 cifre dopo l'ultimo punto → migliaia (es. 1.234)
             var parts = val.split('.');
             if (parts.length === 2 && parts[1].length <= 2) {
-                return parseFloat(val); // decimale
+                return parseFloat(val);
             } else {
-                return parseFloat(val.replace(/\./g, '')); // migliaia
+                return parseFloat(val.replace(/\./g, ''));
             }
         }
         return parseFloat(val);
@@ -1071,13 +1045,13 @@
         });
     }
 
-    // Traduzione ISIN -> Ticker Yahoo Finance
     function getTicker(symbol) {
         if (!symbol) return '';
         var clean = symbol.trim().toUpperCase();
         return ISIN_MAP[clean] || clean;
     }
 
+    // Funzione fetchPrices aggiornata: Twelve Data come primario (con supporto CORS), Yahoo via Proxy come fallback
     function fetchPrices() {
         if (!isOnline) { showToast('Sei offline', 'error'); return; }
         setStatus('syncing');
@@ -1089,12 +1063,37 @@
             var ticker = getTicker(asset.isin);
             if (!ticker) return;
             var p = new Promise(function(resolve) {
-                var targetUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker);
+                var cleanTicker = ticker.trim().toUpperCase();
+                var baseTicker = cleanTicker.split('.')[0];
 
-                // Metodo 1: AllOrigins JSON Wrapper (restituisce sempre intestazione CORS valida)
-                // Metodo 2: Stooq via AllOrigins (fallback)
                 var fetchMethods = [
+                    // Strategy 1: Twelve Data API con Ticker (es. EUNL.DE)
                     function() {
+                        var url = 'https://api.twelvedata.com/price?symbol=' + encodeURIComponent(cleanTicker) + '&apikey=' + TWELVE_DATA_KEY;
+                        return fetchWithTimeout(url, 6000)
+                            .then(function(res) { return res.json(); })
+                            .then(function(data) {
+                                if (data && data.price && !isNaN(parseFloat(data.price))) {
+                                    return parseFloat(data.price);
+                                }
+                                return null;
+                            });
+                    },
+                    // Strategy 2: Twelve Data API con Exchange XETRA (es. EUNL:XETRA)
+                    function() {
+                        var url = 'https://api.twelvedata.com/price?symbol=' + encodeURIComponent(baseTicker + ':XETRA') + '&apikey=' + TWELVE_DATA_KEY;
+                        return fetchWithTimeout(url, 6000)
+                            .then(function(res) { return res.json(); })
+                            .then(function(data) {
+                                if (data && data.price && !isNaN(parseFloat(data.price))) {
+                                    return parseFloat(data.price);
+                                }
+                                return null;
+                            });
+                    },
+                    // Strategy 3: Yahoo Finance via AllOrigins JSON Wrapper (/get?url=)
+                    function() {
+                        var targetUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(cleanTicker);
                         return fetchWithTimeout('https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl), 8000)
                             .then(function(res) { return res.json(); })
                             .then(function(data) {
@@ -1103,8 +1102,9 @@
                                 return parsed && parsed.chart && parsed.chart.result && parsed.chart.result[0] && parsed.chart.result[0].meta && parsed.chart.result[0].meta.regularMarketPrice;
                             });
                     },
+                    // Strategy 4: Stooq via AllOrigins Wrapper
                     function() {
-                        var stooqUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://stooq.com/q/l/?s=' + ticker.toLowerCase() + '&f=sdgl10n1&e=json');
+                        var stooqUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://stooq.com/q/l/?s=' + cleanTicker.toLowerCase() + '&f=sdgl10n1&e=json');
                         return fetchWithTimeout(stooqUrl, 8000)
                             .then(function(res) { return res.json(); })
                             .then(function(data) {
@@ -1241,7 +1241,7 @@
                     '</div>' +
                     '<div class="asset-values">' +
                         '<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:2px;">' +
-                            (a.manualPrice > 0 ? '<span class="tooltip-wrap" style="background:var(--accent-green-dim);color:var(--accent-green);padding:2px 8px;border-radius:100px;font-size:0.65rem;font-weight:800;border:1px solid rgba(0,200,5,0.2);">TR<span class="tt">Prezzo Trade Republic manuale</span></span>' : '<span class="tooltip-wrap" style="background:var(--accent-blue-dim);color:var(--accent-blue);padding:2px 8px;border-radius:100px;font-size:0.65rem;font-weight:800;border:1px solid rgba(0,122,255,0.2);">YAHOO<span class="tt">Prezzo Yahoo Finance (ritardo 15-20min)</span></span>') +
+                            (a.manualPrice > 0 ? '<span class="tooltip-wrap" style="background:var(--accent-green-dim);color:var(--accent-green);padding:2px 8px;border-radius:100px;font-size:0.65rem;font-weight:800;border:1px solid rgba(0,200,5,0.2);">TR<span class="tt">Prezzo Trade Republic manuale</span></span>' : '<span class="tooltip-wrap" style="background:var(--accent-blue-dim);color:var(--accent-blue);padding:2px 8px;border-radius:100px;font-size:0.65rem;font-weight:800;border:1px solid rgba(0,122,255,0.2);">LIVE<span class="tt">Prezzo di Mercato Live (Twelve Data / Yahoo)</span></span>') +
                         '</div>' +
                         '<div class="asset-price tooltip-wrap">' + fmtCurrency(val) + '<span class="tt">Valore attuale = Quote × Prezzo effettivo</span></div>' +
                         '<div class="asset-change ' + (isPos ? 'positive' : 'negative') + ' tooltip-wrap">' +
@@ -1257,14 +1257,14 @@
                         'onchange="window.updateAsset(' + i + ', ' + "'quote'" + ', this.value)">' +
                     '</div>' +
                     '<div class="detail-cell">' +
-                        '<span class="detail-label tooltip-wrap">Prezzo ' + (a.manualPrice > 0 ? 'TR' : 'Live') + '<span class="tt">' + (a.manualPrice > 0 ? 'Prezzo Trade Republic inserito manualmente' : 'Prezzo Yahoo Finance aggiornato ogni 60s') + '</span></span>' +
+                        '<span class="detail-label tooltip-wrap">Prezzo ' + (a.manualPrice > 0 ? 'TR' : 'Live') + '<span class="tt">' + (a.manualPrice > 0 ? 'Prezzo Trade Republic inserito manualmente' : 'Prezzo Twelve Data / Yahoo aggiornato ogni 60s') + '</span></span>' +
                         '<input type="text" inputmode="decimal" class="detail-input" ' +
                         'style="' + (a.manualPrice > 0 ? 'border-color:var(--accent-green);' : '') + '" ' +
                         'value="' + fmtInputNumber(effPrice, 2) + '" ' +
                         'onchange="window.updateAsset(' + i + ', ' + "'manualPrice'" + ', this.value)">' +
                     '</div>' +
                     '<div class="detail-cell">' +
-                        '<span class="detail-label tooltip-wrap">Prezzo Yahoo<span class="tt">Prezzo di riferimento da Yahoo Finance<br>(Xetra, ritardo 15-20 min)</span></span>' +
+                        '<span class="detail-label tooltip-wrap">Prezzo Market<span class="tt">Prezzo di riferimento da Twelve Data / Yahoo Finance</span></span>' +
                         '<span class="detail-value" style="font-size:0.82rem;">' + fmtCurrency(a.price) + '</span>' +
                         (a.manualPrice > 0 ? '<button class="btn-text" style="margin-top:4px;padding:2px 6px;font-size:0.65rem;" onclick="window.clearManualPrice(' + i + ')">Usa Live</button>' : '') +
                     '</div>' +
@@ -1507,7 +1507,7 @@
     function clearManualPrice(idx) {
         assets[idx].manualPrice = 0;
         saveAll();
-        showToast('Prezzo Yahoo ripristinato', 'info');
+        showToast('Prezzo Live ripristinato', 'info');
     }
     window.clearManualPrice = clearManualPrice;
 
@@ -1534,7 +1534,7 @@
                     'placeholder="' + fmtInputNumber(a.price, 2) + '" ' +
                     'onchange="window.updateTRPrice(' + i + ', this.value)" ' +
                     'id="tr-input-' + i + '">' +
-                    '<div style="font-size:0.65rem;color:var(--text-tertiary);font-weight:600;">Yahoo: ' + fmtCurrency(a.price) + '</div>' +
+                    '<div style="font-size:0.65rem;color:var(--text-tertiary);font-weight:600;">Twelve/Yahoo: ' + fmtCurrency(a.price) + '</div>' +
                 '</div>';
             container.appendChild(row);
         });
@@ -1743,6 +1743,7 @@
             Object.keys(assetMap).forEach(function(key) {
                 var newAsset = assetMap[key];
                 if (newAsset.quote > 0.0001 || key === 'EIGB.DE') {
+                    applyKnownTRToAsset(newAsset);
                     assets.push(newAsset);
                 }
             });
