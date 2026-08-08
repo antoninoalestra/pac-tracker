@@ -746,9 +746,12 @@
 
     var UPDATE_INTERVAL_MS = 60000;
     var COLORS = ['#00c805','#007aff','#ff9500','#af52de','#ff2d55','#5ac8fa','#ffcc00','#34c759'];
+    
+    // Mappatura completa ISIN Trade Republic -> Ticker Yahoo Finance
     var ISIN_MAP = {
         'IE00B4L5Y983': 'EUNL.DE',
-        'IE00BKM4GZ66': 'IS3N.DE'
+        'IE00BKM4GZ66': 'IS3N.DE',
+        'IE00BH04GL39': 'EIGB.DE'
     };
 
     var firebaseConfig = {
@@ -872,6 +875,13 @@
         });
     }
 
+    // Risoluzione dinamica ISIN -> Ticker per la chiamata API
+    function getTicker(symbol) {
+        if (!symbol) return '';
+        var clean = symbol.trim().toUpperCase();
+        return ISIN_MAP[clean] || clean;
+    }
+
     function fetchPrices() {
         if (!isOnline) { showToast('Sei offline', 'error'); return; }
         setStatus('syncing');
@@ -880,11 +890,12 @@
         var promises = [];
 
         assets.forEach(function(asset) {
-            if (!asset.isin) return;
+            var ticker = getTicker(asset.isin);
+            if (!ticker) return;
             var p = new Promise(function(resolve) {
                 var proxies = [
-                    'https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/' + asset.isin,
-                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + asset.isin)
+                    'https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/' + ticker,
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + ticker)
                 ];
 
                 function tryProxy(index) {
@@ -941,7 +952,15 @@
     function getTotalInvested() {
         var activeIsins = assets.filter(function(a) { return a.quote > 0.0001; }).map(function(a) { return a.isin; });
         return txHistory.filter(function(tx) { 
-            return tx.type === 'BUY' && (activeIsins.indexOf(tx.assetIsin) !== -1 || activeIsins.indexOf('EUNL.DE') !== -1 || activeIsins.indexOf('IS3N.DE') !== -1 || activeIsins.indexOf('IE00B4L5Y983') !== -1 || activeIsins.indexOf('IE00BKM4GZ66') !== -1);
+            return tx.type === 'BUY' && (
+                activeIsins.indexOf(tx.assetIsin) !== -1 || 
+                activeIsins.indexOf('EUNL.DE') !== -1 || 
+                activeIsins.indexOf('IS3N.DE') !== -1 || 
+                activeIsins.indexOf('EIGB.DE') !== -1 ||
+                activeIsins.indexOf('IE00B4L5Y983') !== -1 || 
+                activeIsins.indexOf('IE00BKM4GZ66') !== -1 ||
+                activeIsins.indexOf('IE00BH04GL39') !== -1
+            );
         }).reduce(function(s, tx) { return s + (tx.amount || 0); }, 0);
     }
 
@@ -1224,9 +1243,11 @@
 
         if (!vName || !vIsin || !vPrice) return;
 
+        var tickerMapped = ISIN_MAP[isin] || isin;
+
         assets.push({
             id: Date.now().toString(),
-            name: name, isin: isin, quote: quote, price: price,
+            name: name, isin: tickerMapped, quote: quote, price: price,
             lastBuyPrice: price,
             color: COLORS[assets.length % COLORS.length]
         });
@@ -1335,7 +1356,7 @@
 
             var imported = 0;
             var assetMap = {};
-            txHistory = []; // Reset pulito prima dell'importazione CSV
+            txHistory = [];
 
             for (var i = 1; i < lines.length; i++) {
                 var cols = parseCSVLine(lines[i]);
@@ -1348,8 +1369,7 @@
 
                 var name = cols[idx.name];
                 var isin = cols[idx.symbol];
-                var mapped = ISIN_MAP[isin];
-                if (mapped) isin = mapped;
+                var mapped = ISIN_MAP[isin] || isin;
 
                 var sharesRaw = cols[idx.shares] || '0';
                 var priceRaw = cols[idx.price] || '0';
@@ -1373,23 +1393,23 @@
                 var txId = cols[idx.id] || (Date.now().toString() + i);
 
                 txHistory.push({
-                    id: txId, date: formattedDate, assetName: name, assetIsin: isin,
+                    id: txId, date: formattedDate, assetName: name, assetIsin: mapped,
                     amount: amountVal, shares: type === 'SELL' ? -sharesVal : sharesVal, price: priceVal, type: type
                 });
                 imported++;
 
-                if (!assetMap[isin]) {
-                    assetMap[isin] = {
+                if (!assetMap[mapped]) {
+                    assetMap[mapped] = {
                         id: Date.now().toString() + Math.random(),
-                        name: name, isin: isin, quote: 0, price: priceVal, lastBuyPrice: priceVal,
+                        name: name, isin: mapped, quote: 0, price: priceVal, lastBuyPrice: priceVal,
                         color: COLORS[Object.keys(assetMap).length % COLORS.length]
                     };
                 }
                 if (type === 'BUY') {
-                    assetMap[isin].quote += sharesVal;
-                    assetMap[isin].lastBuyPrice = priceVal;
+                    assetMap[mapped].quote += sharesVal;
+                    assetMap[mapped].lastBuyPrice = priceVal;
                 } else {
-                    assetMap[isin].quote -= sharesVal;
+                    assetMap[mapped].quote -= sharesVal;
                 }
             }
 
