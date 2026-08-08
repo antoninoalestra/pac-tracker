@@ -644,7 +644,6 @@
 <base target="_blank">
 </head>
 <body>
-    <div class="toast" id="toast"></div>
     <input type="file" id="csv-file-input" accept=".csv" style="display:none">
 
     <!-- Navbar Desktop Centrata -->
@@ -925,7 +924,6 @@
         });
         if (applied > 0) {
             saveAll();
-            showToast(applied + ' prezzi TR auto-applicati', 'success');
         }
     }
 
@@ -943,16 +941,6 @@
             historyRef.set(txHistory).catch(function(){});
         }
         render();
-    }
-
-    function showToast(msg, type, duration) {
-        type = type || 'info';
-        duration = duration || 2500;
-        var t = document.getElementById('toast');
-        t.className = 'toast ' + type;
-        t.textContent = msg;
-        t.classList.add('show');
-        setTimeout(function() { t.classList.remove('show'); }, duration);
     }
 
     function fmtCurrency(n) {
@@ -1029,7 +1017,7 @@
     }
 
     function fetchPrices() {
-        if (!isOnline) { showToast('Sei offline', 'error'); return; }
+        if (!isOnline) return;
         var updated = 0;
         var now = new Date();
         var promises = [];
@@ -1112,7 +1100,6 @@
             document.getElementById('last-update-time').textContent = 'Aggiornato alle ' + now.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
             if (updated > 0) {
                 saveAll();
-                showToast(updated + ' prezzi aggiornati', 'success');
             }
         });
     }
@@ -1274,9 +1261,9 @@
                     '<div class="tx-asset-sub">' + tx.assetIsin + '</div>' +
                 '</td>' +
                 '<td><span class="tx-type ' + (isSell ? 'sell' : 'buy') + '">' + (isSell ? 'VENDITA' : 'ACQUISTO') + '</span></td>' +
-                '<td class="tooltip-wrap">' + fmtCurrency(tx.amount) + '<span class="tt">Importo totale versato<br>per questa transazione</span></td>' +
-                '<td class="tooltip-wrap">' + (isSell ? '' : '+') + fmtNumber(tx.shares, 6) + '<span class="tt">Numero di quote ' + (isSell ? 'vendute' : 'acquistate') + '</span></td>' +
-                '<td class="tooltip-wrap">' + fmtCurrency(tx.price) + '<span class="tt">Prezzo per singola quota<br>al momento della transazione</span></td>' +
+                '<td><div class="tooltip-wrap">' + fmtCurrency(tx.amount) + '<span class="tt">Importo totale versato<br>per questa transazione</span></div></td>' +
+                '<td><div class="tooltip-wrap">' + (isSell ? '' : '+') + fmtNumber(tx.shares, 6) + '<span class="tt">Numero di quote ' + (isSell ? 'vendute' : 'acquistate') + '</span></div></td>' +
+                '<td><div class="tooltip-wrap">' + fmtCurrency(tx.price) + '<span class="tt">Prezzo per singola quota<br>al momento della transazione</span></div></td>' +
                 '<td><button class="btn-text danger" onclick="window.deleteTx(' + "'" + tx.id + "'" + ')">x</button></td>';
             tbody.appendChild(tr);
         });
@@ -1385,7 +1372,7 @@
         var validShares = validateGroup('grp-shares', !isNaN(shares) && shares > 0);
 
         if (!validAmount && !validShares) return;
-        if (price <= 0) { showToast('Prezzo asset non valido', 'error'); return; }
+        if (price <= 0) return;
 
         var addShares = 0, invest = 0;
         if (!isNaN(shares) && shares > 0) {
@@ -1423,7 +1410,6 @@
         document.getElementById('pac-date').value = '';
         closeModal('pacModal');
         saveAll();
-        showToast('Versamento registrato', 'success');
     }
 
     function addAsset() {
@@ -1456,7 +1442,6 @@
         document.getElementById('new-price').value = '';
         closeModal('assetModal');
         saveAll();
-        showToast('Asset aggiunto', 'success');
     }
 
     function updateAsset(idx, key, val) {
@@ -1474,7 +1459,6 @@
     function clearManualPrice(idx) {
         assets[idx].manualPrice = 0;
         saveAll();
-        showToast('Prezzo Live ripristinato', 'info');
     }
     window.clearManualPrice = clearManualPrice;
 
@@ -1523,7 +1507,6 @@
     function saveAllTRPrices() {
         saveAll();
         closeModal('trPricesModal');
-        showToast('Prezzi TR salvati', 'success');
     }
     window.saveAllTRPrices = saveAllTRPrices;
 
@@ -1554,9 +1537,6 @@
         });
         if (updated > 0) {
             saveAll();
-            showToast(updated + ' prezzi TR aggiornati', 'success');
-        } else {
-            showToast('Prezzi TR già corretti', 'info');
         }
     }
     window.applyKnownTRPrices = applyKnownTRPrices;
@@ -1566,7 +1546,6 @@
         if (!confirm('Eliminare ' + a.name + '? Le transazioni associate rimarranno nello storico.')) return;
         assets.splice(idx, 1);
         saveAll();
-        showToast('Asset eliminato', 'info');
     }
 
     function deleteTx(id) {
@@ -1589,7 +1568,6 @@
         }
         txHistory.splice(idx, 1);
         saveAll();
-        showToast('Transazione cancellata', 'info');
     }
 
     function resetData() {
@@ -1597,7 +1575,6 @@
         assets = JSON.parse(JSON.stringify(defaultAssets));
         txHistory = [];
         saveAll();
-        showToast('Dati azzerati', 'success');
     }
 
     function triggerCSV() {
@@ -1631,7 +1608,7 @@
         reader.onload = function(evt) {
             var text = evt.target.result;
             var lines = text.split(/\r?\n/).filter(function(l) { return l.trim(); });
-            if (lines.length < 2) { showToast('File CSV vuoto', 'error'); return; }
+            if (lines.length < 2) return;
 
             var headers = parseCSVLine(lines[0]);
             var idx = {
@@ -1718,7 +1695,6 @@
             e.target.value = '';
             saveAll();
             fetchPrices();
-            showToast(imported + ' transazioni importate', 'success');
         };
         reader.readAsText(file);
     }
@@ -1809,7 +1785,6 @@
             applyAllKnownTR();
         } catch(err) {
             console.error('Init error:', err);
-            showToast('Errore avvio: ' + err.message, 'error', 5000);
         }
     }
 
