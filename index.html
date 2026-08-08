@@ -875,7 +875,7 @@
         });
     }
 
-    // Risoluzione dinamica ISIN -> Ticker per la chiamata API
+    // Traduzione ISIN -> Ticker Yahoo Finance
     function getTicker(symbol) {
         if (!symbol) return '';
         var clean = symbol.trim().toUpperCase();
@@ -893,31 +893,50 @@
             var ticker = getTicker(asset.isin);
             if (!ticker) return;
             var p = new Promise(function(resolve) {
-                // Chiamata via Proxy CORS per evitare net::ERR_FAILED e restrizioni di dominio
-                var proxies = [
-                    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + ticker),
-                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + ticker)
+                var targetUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker);
+
+                // Metodo 1: AllOrigins JSON Wrapper (restituisce sempre intestazione CORS valida)
+                // Metodo 2: Stooq via AllOrigins (fallback)
+                var fetchMethods = [
+                    function() {
+                        return fetchWithTimeout('https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl), 8000)
+                            .then(function(res) { return res.json(); })
+                            .then(function(data) {
+                                if (!data || !data.contents) return null;
+                                var parsed = JSON.parse(data.contents);
+                                return parsed && parsed.chart && parsed.chart.result && parsed.chart.result[0] && parsed.chart.result[0].meta && parsed.chart.result[0].meta.regularMarketPrice;
+                            });
+                    },
+                    function() {
+                        var stooqUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://stooq.com/q/l/?s=' + ticker.toLowerCase() + '&f=sdgl10n1&e=json');
+                        return fetchWithTimeout(stooqUrl, 8000)
+                            .then(function(res) { return res.json(); })
+                            .then(function(data) {
+                                if (!data || !data.contents) return null;
+                                var parsed = JSON.parse(data.contents);
+                                var priceVal = parsed && parsed.symbols && parsed.symbols[0] && parsed.symbols[0].close;
+                                return (priceVal && !isNaN(priceVal) && priceVal > 0) ? parseFloat(priceVal) : null;
+                            });
+                    }
                 ];
 
-                function tryProxy(index) {
-                    if (index >= proxies.length) { resolve(); return; }
-                    fetchWithTimeout(proxies[index], 8000)
-                        .then(function(res) {
-                            if (!res.ok) { tryProxy(index + 1); return; }
-                            return res.json();
-                        })
-                        .then(function(data) {
-                            if (!data) { tryProxy(index + 1); return; }
-                            var price = data.chart && data.chart.result && data.chart.result[0] && data.chart.result[0].meta && data.chart.result[0].meta.regularMarketPrice;
+                function tryMethod(indexMethod) {
+                    if (indexMethod >= fetchMethods.length) { resolve(); return; }
+                    fetchMethods[indexMethod]()
+                        .then(function(price) {
                             if (price && price > 0) {
                                 asset.price = price;
                                 updated++;
+                                resolve();
+                            } else {
+                                tryMethod(indexMethod + 1);
                             }
-                            resolve();
                         })
-                        .catch(function() { tryProxy(index + 1); });
+                        .catch(function() {
+                            tryMethod(indexMethod + 1);
+                        });
                 }
-                tryProxy(0);
+                tryMethod(0);
             });
             promises.push(p);
         });
