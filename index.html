@@ -57,7 +57,6 @@
             padding-bottom: 100px;
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             top: 16px;
@@ -80,7 +79,6 @@
         .toast.error { border-color: var(--accent-red); color: var(--accent-red); }
         .toast.info { border-color: var(--accent-blue); color: var(--accent-blue); }
 
-        /* Header */
         header { 
             padding: 20px 16px 12px;
             display: flex; 
@@ -130,7 +128,6 @@
             border-color: rgba(0,122,255,0.2);
         }
 
-        /* Summary Cards - Trade Republic Style */
         .summary-section {
             padding: 16px;
             display: flex;
@@ -161,7 +158,6 @@
         .summary-sub.positive { color: var(--accent-green); }
         .summary-sub.negative { color: var(--accent-red); }
 
-        /* Quick Actions */
         .actions-scroll {
             display: flex;
             gap: 10px;
@@ -190,7 +186,6 @@
         .action-chip.primary { background: var(--accent-green); color: #000; border-color: var(--accent-green); }
         .action-chip.danger { color: var(--accent-red); border-color: rgba(255,80,0,0.3); }
 
-        /* Section Cards */
         .section-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -219,7 +214,6 @@
             border-radius: 100px;
         }
 
-        /* Asset Cards */
         .asset-list { padding: 0 16px 16px; }
 
         .asset-card {
@@ -298,9 +292,9 @@
             background: var(--bg);
             border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 4px 8px;
+            padding: 6px 10px;
             border-radius: 8px;
-            font-size: 0.82rem;
+            font-size: 0.85rem;
             font-weight: 700;
             width: 100%;
             outline: none;
@@ -331,11 +325,9 @@
         .btn-text.danger { color: var(--accent-red); }
         .btn-text.danger:hover { background: var(--accent-red-dim); }
 
-        /* Charts */
         .chart-wrapper { padding: 0 16px 16px; }
         .chart-container { position: relative; height: 220px; width: 100%; }
 
-        /* History Table */
         .table-wrapper { overflow-x: auto; padding: 0 16px 16px; }
         .table-wrapper::-webkit-scrollbar { height: 4px; }
         .table-wrapper::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -375,7 +367,6 @@
         .tx-asset { font-weight: 700; color: var(--text-primary); }
         .tx-asset-sub { font-size: 0.7rem; color: var(--text-tertiary); font-weight: 600; }
 
-        /* Bottom Navigation */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -385,7 +376,7 @@
             background: rgba(18,18,18,0.95);
             backdrop-filter: blur(20px);
             border-top: 1px solid var(--border);
-            padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+            padding: 10px 16px 10px;
             z-index: 99;
             justify-content: space-around;
             align-items: center;
@@ -436,7 +427,6 @@
             body { padding-bottom: 20px; }
         }
 
-        /* Modals */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -556,7 +546,6 @@
 
         .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -566,19 +555,6 @@
         .empty-state-title { font-size: 1rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; }
         .empty-state-desc { font-size: 0.85rem; }
 
-        /* Loading shimmer */
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        .shimmer {
-            background: linear-gradient(90deg, var(--surface) 25%, var(--surface-elevated) 50%, var(--surface) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 8px;
-        }
-
-        /* Scrollbar styling */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -593,23 +569,23 @@
     <header>
         <div class="header-title">
             <h1>Portfolio</h1>
-            <p id="last-update-time">Aggiornamento in corso...</p>
+            <p id="last-update-time">Pronto</p>
         </div>
-        <div class="status-pill" id="sync-status">● Online</div>
+        <div class="status-pill" id="sync-status">Online</div>
     </header>
 
     <div class="summary-section">
         <div class="summary-label">Valore Totale</div>
-        <div class="summary-value" id="total-val">€ 0,00</div>
-        <div class="summary-sub" id="total-pl">+€ 0,00 (0,00%)</div>
+        <div class="summary-value" id="total-val">0,00</div>
+        <div class="summary-sub" id="total-pl">+0,00 (0,00%)</div>
     </div>
 
     <div class="actions-scroll desktop-only">
-        <button class="action-chip primary" onclick="openModal('pacModal')">+ Versamento</button>
-        <button class="action-chip" onclick="triggerCSV()">📥 Importa CSV</button>
-        <button class="action-chip" onclick="openModal('assetModal')">+ Asset</button>
-        <button class="action-chip" onclick="fetchPrices()">🔄 Aggiorna</button>
-        <button class="action-chip danger" onclick="resetData()">🧹 Reset</button>
+        <button class="action-chip primary" onclick="window.openModal('pacModal')">+ Versamento</button>
+        <button class="action-chip" onclick="window.triggerCSV()">Importa CSV</button>
+        <button class="action-chip" onclick="window.openModal('assetModal')">+ Asset</button>
+        <button class="action-chip" onclick="window.fetchPrices()">Aggiorna</button>
+        <button class="action-chip danger" onclick="window.resetData()">Reset</button>
     </div>
 
     <div class="section-card">
@@ -678,30 +654,29 @@
 
     <div class="bottom-nav mobile-only">
         <button class="nav-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-            <span class="nav-icon">◉</span>
+            <span class="nav-icon">O</span>
             <span>Portfolio</span>
         </button>
-        <button class="nav-btn" onclick="openModal('pacModal')">
+        <button class="nav-btn" onclick="window.openModal('pacModal')">
             <span class="nav-icon">+</span>
             <span>Versa</span>
         </button>
-        <button class="fab" onclick="openModal('pacModal')">+</button>
-        <button class="nav-btn" onclick="triggerCSV()">
-            <span class="nav-icon">⬇</span>
+        <button class="fab" onclick="window.openModal('pacModal')">+</button>
+        <button class="nav-btn" onclick="window.triggerCSV()">
+            <span class="nav-icon">v</span>
             <span>CSV</span>
         </button>
-        <button class="nav-btn" onclick="fetchPrices()">
-            <span class="nav-icon">↻</span>
+        <button class="nav-btn" onclick="window.fetchPrices()">
+            <span class="nav-icon">r</span>
             <span>Aggiorna</span>
         </button>
     </div>
 
-    <!-- Modal PAC -->
-    <div class="modal-overlay" id="pacModal" onclick="closeModalOnBackdrop(event, 'pacModal')">
+    <div class="modal-overlay" id="pacModal" onclick="window.closeModalOnBackdrop(event, 'pacModal')">
         <div class="modal-sheet" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h3>Nuovo Versamento</h3>
-                <button class="modal-close" onclick="closeModal('pacModal')">✕</button>
+                <button class="modal-close" onclick="window.closeModal('pacModal')">x</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -710,13 +685,13 @@
                 </div>
                 <div class="input-row">
                     <div class="form-group" id="grp-amount">
-                        <label class="form-label">Importo €</label>
+                        <label class="form-label">Importo EUR</label>
                         <input type="number" class="form-input" id="pac-amount" step="0.01" placeholder="100.00">
                         <div class="form-error">Inserisci un importo valido</div>
                     </div>
                     <div class="form-group" id="grp-shares">
                         <label class="form-label">Oppure Quote</label>
-                        <input type="number" class="form-input" id="pac-shares" step="0.0001" placeholder="0.00">
+                        <input type="number" class="form-input" id="pac-shares" step="0.000001" placeholder="0.00">
                         <div class="form-error">Inserisci quote valide</div>
                     </div>
                 </div>
@@ -725,17 +700,16 @@
                     <input type="date" class="form-input" id="pac-date">
                     <div class="form-hint">Lascia vuoto per usare la data odierna</div>
                 </div>
-                <button class="btn-full primary" onclick="submitPac()">Conferma Versamento</button>
+                <button class="btn-full primary" onclick="window.submitPac()">Conferma Versamento</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Asset -->
-    <div class="modal-overlay" id="assetModal" onclick="closeModalOnBackdrop(event, 'assetModal')">
+    <div class="modal-overlay" id="assetModal" onclick="window.closeModalOnBackdrop(event, 'assetModal')">
         <div class="modal-sheet" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h3>Aggiungi Asset</h3>
-                <button class="modal-close" onclick="closeModal('assetModal')">✕</button>
+                <button class="modal-close" onclick="window.closeModal('assetModal')">x</button>
             </div>
             <div class="modal-body">
                 <div class="form-group" id="grp-name">
@@ -744,7 +718,7 @@
                     <div class="form-error">Inserisci un nome</div>
                 </div>
                 <div class="form-group" id="grp-isin">
-                    <label class="form-label">Ticker / ISIN Yahoo Finance</label>
+                    <label class="form-label">Ticker Yahoo Finance</label>
                     <input type="text" class="form-input" id="new-isin" placeholder="es. EUNL.DE">
                     <div class="form-hint">Usa il ticker di Yahoo Finance per i prezzi live</div>
                     <div class="form-error">Inserisci un ticker valido</div>
@@ -752,35 +726,33 @@
                 <div class="input-row">
                     <div class="form-group" id="grp-quote">
                         <label class="form-label">Quote Iniziali</label>
-                        <input type="number" class="form-input" id="new-quote" step="0.0001" value="0">
+                        <input type="number" class="form-input" id="new-quote" step="0.000001" value="0">
                         <div class="form-error">Valore non valido</div>
                     </div>
                     <div class="form-group" id="grp-price">
-                        <label class="form-label">Prezzo Attuale €</label>
+                        <label class="form-label">Prezzo Attuale EUR</label>
                         <input type="number" class="form-input" id="new-price" step="0.01" placeholder="0.00">
                         <div class="form-error">Prezzo richiesto</div>
                     </div>
                 </div>
-                <button class="btn-full primary" onclick="addAsset()">Aggiungi Asset</button>
+                <button class="btn-full primary" onclick="window.addAsset()">Aggiungi Asset</button>
             </div>
         </div>
     </div>
 
     <script>
-    // ===================== CONFIG =====================
-    const UPDATE_INTERVAL_MS = 60000; // 60 secondi — ottimale per Yahoo Finance
-    const COLORS = ['#00c805','#007aff','#ff9500','#af52de','#ff2d55','#5ac8fa','#ffcc00','#34c759'];
-    const ISIN_MAP = {
+    if (typeof ChartDataLabels !== 'undefined' && typeof Chart !== 'undefined') {
+        Chart.register(ChartDataLabels);
+    }
+
+    var UPDATE_INTERVAL_MS = 60000;
+    var COLORS = ['#00c805','#007aff','#ff9500','#af52de','#ff2d55','#5ac8fa','#ffcc00','#34c759'];
+    var ISIN_MAP = {
         'IE00B4L5Y983': 'EUNL.DE',
-        'IE00BKM4GZ66': 'IS3N.DE',
-        'IE00B4L5Y983
-': 'EUNL.DE',
-        'IE00BKM4GZ66
-': 'IS3N.DE'
+        'IE00BKM4GZ66': 'IS3N.DE'
     };
 
-    // ===================== FIREBASE =====================
-    const firebaseConfig = {
+    var firebaseConfig = {
         apiKey: "AIzaSyA8Gf2INUG1LRvdLFTnLPGU9-DnQG1da7M",
         authDomain: "pac-tracker-ad855.firebaseapp.com",
         databaseURL: "https://pac-tracker-ad855-default-rtdb.firebaseio.com",
@@ -790,39 +762,43 @@
         appId: "1:48319574793:web:ccb30de959edaeec1599d8"
     };
 
-    let db, portfolioRef, historyRef;
-    let firebaseReady = false;
+    var db = null, portfolioRef = null, historyRef = null;
+    var firebaseReady = false;
+    var assets = [];
+    var history = [];
+    var charts = {};
+    var isOnline = navigator.onLine;
+    var updateTimer = null;
 
-    try {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-        portfolioRef = db.ref('pac_portfolio');
-        historyRef = db.ref('pac_history');
-        firebaseReady = true;
-    } catch(e) {
-        console.warn('Firebase non disponibile, uso localStorage');
-        firebaseReady = false;
-    }
-
-    // ===================== STATE =====================
-    let assets = [];
-    let history = [];
-    let charts = {};
-    let isOnline = navigator.onLine;
-
-    const defaultAssets = [
+    var defaultAssets = [
         { id: '1', name: 'Eurozone Gov Bond', isin: 'EIGB.DE', quote: 0, price: 23.80, lastBuyPrice: 23.80, color: COLORS[2] }
     ];
 
-    // ===================== STORAGE =====================
+    // FIX: assicura che il valore sia sempre un array
+    function ensureArray(val) {
+        if (Array.isArray(val)) return val;
+        if (val && typeof val === 'object') return Object.values(val);
+        return [];
+    }
+
     function loadLocal() {
         try {
-            const a = localStorage.getItem('pac_assets');
-            const h = localStorage.getItem('pac_history');
-            if (a) assets = JSON.parse(a);
-            if (h) history = JSON.parse(h);
-        } catch(e) {}
-        if (!assets.length) assets = JSON.parse(JSON.stringify(defaultAssets));
+            var a = localStorage.getItem('pac_assets');
+            var h = localStorage.getItem('pac_history');
+            if (a) {
+                var parsed = JSON.parse(a);
+                assets = ensureArray(parsed);
+            }
+            if (h) {
+                var parsedH = JSON.parse(h);
+                history = ensureArray(parsedH);
+            }
+        } catch(e) {
+            console.warn('loadLocal error:', e);
+        }
+        if (!assets || !assets.length) {
+            assets = JSON.parse(JSON.stringify(defaultAssets));
+        }
     }
 
     function saveLocal() {
@@ -834,141 +810,140 @@
 
     function saveAll() {
         saveLocal();
-        if (firebaseReady) {
+        if (firebaseReady && portfolioRef && historyRef) {
             setStatus('syncing');
-            portfolioRef.set(assets).catch(()=>{});
-            historyRef.set(history).then(()=>setStatus('online')).catch(()=>setStatus('offline'));
+            portfolioRef.set(assets).catch(function(){});
+            historyRef.set(history).then(function(){ setStatus('online'); }).catch(function(){ setStatus('offline'); });
         } else {
             setStatus('offline');
         }
         render();
     }
 
-    // ===================== INIT =====================
-    function init() {
-        loadLocal();
-
-        if (firebaseReady) {
-            portfolioRef.on('value', snap => {
-                const data = snap.val();
-                if (data) { assets = data; saveLocal(); render(); }
-            });
-            historyRef.on('value', snap => {
-                const data = snap.val();
-                if (data) { 
-                    history = Array.isArray(data) ? data : Object.values(data); 
-                    saveLocal(); 
-                    render(); 
-                }
-            });
-        }
-
-        render();
-        fetchPrices();
-        setInterval(fetchPrices, UPDATE_INTERVAL_MS);
-
-        window.addEventListener('online', () => { isOnline = true; setStatus('online'); fetchPrices(); });
-        window.addEventListener('offline', () => { isOnline = false; setStatus('offline'); });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
-        document.getElementById('csv-file-input').addEventListener('change', importCSV);
-    }
-
-    // ===================== UI HELPERS =====================
-    function showToast(msg, type='info', duration=2500) {
-        const t = document.getElementById('toast');
-        t.className = `toast ${type}`;
+    function showToast(msg, type, duration) {
+        type = type || 'info';
+        duration = duration || 2500;
+        var t = document.getElementById('toast');
+        t.className = 'toast ' + type;
         t.textContent = msg;
         t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), duration);
+        setTimeout(function() { t.classList.remove('show'); }, duration);
     }
 
     function setStatus(status) {
-        const el = document.getElementById('sync-status');
+        var el = document.getElementById('sync-status');
         if (status === 'online') el.className = 'status-pill';
         else if (status === 'offline') el.className = 'status-pill offline';
         else if (status === 'syncing') el.className = 'status-pill syncing';
-
-        const map = { online: '● Online', offline: '● Offline', syncing: '⟳ Sync...' };
+        var map = { online: 'Online', offline: 'Offline', syncing: 'Sync...' };
         el.textContent = map[status] || status;
     }
 
-    function formatCurrency(n) {
-        return '€ ' + (n || 0).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    function fmtCurrency(n) {
+        n = typeof n === 'number' ? n : 0;
+        return n.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' EUR';
     }
 
-    function formatNumber(n, d=2) {
-        return (n || 0).toLocaleString('it-IT', {minimumFractionDigits: d, maximumFractionDigits: d});
+    function fmtNumber(n, d) {
+        d = d || 2;
+        n = typeof n === 'number' ? n : 0;
+        return n.toLocaleString('it-IT', {minimumFractionDigits: d, maximumFractionDigits: d});
     }
 
-    // ===================== VALIDATION =====================
+    function fmtInputNumber(n, d) {
+        d = d || 2;
+        n = typeof n === 'number' ? n : 0;
+        return n.toFixed(d);
+    }
+
     function validateGroup(id, condition) {
-        const el = document.getElementById(id);
+        var el = document.getElementById(id);
         if (!el) return true;
         if (condition) { el.classList.remove('invalid'); return true; }
         else { el.classList.add('invalid'); return false; }
     }
 
-    // ===================== PRICES =====================
-    async function fetchPrices() {
-        if (!isOnline) { showToast('Sei offline', 'error'); return; }
-        setStatus('syncing');
-        let updated = 0;
-        const now = new Date();
-
-        for (const asset of assets) {
-            if (!asset.isin) continue;
-            try {
-                const proxies = [
-                    `https://api.allorigins.win/raw?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + asset.isin)}`,
-                    `https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/${asset.isin}`
-                ];
-
-                let data = null;
-                for (const url of proxies) {
-                    try {
-                        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-                        if (res.ok) { data = await res.json(); break; }
-                    } catch(e) {}
-                }
-
-                const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-                if (price && price > 0) {
-                    asset.price = price;
-                    updated++;
-                }
-            } catch(e) {}
-        }
-
-        document.getElementById('last-update-time').textContent = 
-            `Aggiornato alle ${now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`;
-
-        if (updated > 0) {
-            saveAll();
-            showToast(`${updated} prezzi aggiornati`, 'success');
-        } else {
-            setStatus('online');
-        }
+    function fetchWithTimeout(url, timeout) {
+        timeout = timeout || 8000;
+        return new Promise(function(resolve, reject) {
+            var controller = new AbortController();
+            var timer = setTimeout(function() { controller.abort(); }, timeout);
+            fetch(url, { signal: controller.signal })
+                .then(function(res) { clearTimeout(timer); resolve(res); })
+                .catch(function(err) { clearTimeout(timer); reject(err); });
+        });
     }
 
-    // ===================== CALCULATIONS =====================
+    function fetchPrices() {
+        if (!isOnline) { showToast('Sei offline', 'error'); return; }
+        setStatus('syncing');
+        var updated = 0;
+        var now = new Date();
+        var promises = [];
+
+        assets.forEach(function(asset) {
+            if (!asset.isin) return;
+            var p = new Promise(function(resolve) {
+                var proxies = [
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + asset.isin),
+                    'https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/' + asset.isin
+                ];
+
+                function tryProxy(index) {
+                    if (index >= proxies.length) { resolve(); return; }
+                    fetchWithTimeout(proxies[index], 8000)
+                        .then(function(res) {
+                            if (!res.ok) { tryProxy(index + 1); return; }
+                            return res.json();
+                        })
+                        .then(function(data) {
+                            if (!data) { tryProxy(index + 1); return; }
+                            var price = data.chart && data.chart.result && data.chart.result[0] && data.chart.result[0].meta && data.chart.result[0].meta.regularMarketPrice;
+                            if (price && price > 0) {
+                                asset.price = price;
+                                updated++;
+                            }
+                            resolve();
+                        })
+                        .catch(function() { tryProxy(index + 1); });
+                }
+                tryProxy(0);
+            });
+            promises.push(p);
+        });
+
+        Promise.all(promises).then(function() {
+            document.getElementById('last-update-time').textContent = 'Aggiornato alle ' + now.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+            if (updated > 0) {
+                saveAll();
+                showToast(updated + ' prezzi aggiornati', 'success');
+            } else {
+                setStatus('online');
+            }
+        }).catch(function() {
+            setStatus('online');
+        });
+    }
+
     function getPMC(isin, name) {
-        const txs = history.filter(tx => (tx.assetIsin === isin || tx.assetName === name) && tx.type === 'BUY');
-        const spent = txs.reduce((s, tx) => s + (tx.amount || 0), 0);
-        const shares = txs.reduce((s, tx) => s + (tx.shares || 0), 0);
+        var txs = history.filter(function(tx) {
+            return (tx.assetIsin === isin || tx.assetName === name) && tx.type === 'BUY';
+        });
+        var spent = 0, shares = 0;
+        txs.forEach(function(tx) { spent += (tx.amount || 0); shares += (tx.shares || 0); });
         return shares > 0 ? spent / shares : 0;
     }
 
     function getTotalSpent(isin, name) {
-        return history
-            .filter(tx => (tx.assetIsin === isin || tx.assetName === name) && tx.type === 'BUY')
-            .reduce((s, tx) => s + (tx.amount || 0), 0);
+        return history.filter(function(tx) {
+            return (tx.assetIsin === isin || tx.assetName === name) && tx.type === 'BUY';
+        }).reduce(function(s, tx) { return s + (tx.amount || 0); }, 0);
     }
 
     function getTotalInvested() {
-        return history.filter(tx => tx.type === 'BUY').reduce((s, tx) => s + (tx.amount || 0), 0);
+        return history.filter(function(tx) { return tx.type === 'BUY'; }).reduce(function(s, tx) { return s + (tx.amount || 0); }, 0);
     }
 
-    // ===================== RENDER =====================
     function render() {
         renderAssets();
         renderHistory();
@@ -977,90 +952,86 @@
     }
 
     function renderSummary() {
-        const totalVal = assets.reduce((s, a) => s + (a.quote * a.price), 0);
-        const invested = getTotalInvested();
-        const pl = totalVal - invested;
-        const plPerc = invested > 0 ? (pl / invested) * 100 : 0;
+        var totalVal = 0;
+        assets.forEach(function(a) { totalVal += (a.quote * a.price); });
+        var invested = getTotalInvested();
+        var pl = totalVal - invested;
+        var plPerc = invested > 0 ? (pl / invested) * 100 : 0;
 
-        document.getElementById('total-val').textContent = formatCurrency(totalVal);
-        const plEl = document.getElementById('total-pl');
-        const sign = pl >= 0 ? '+' : '';
-        plEl.className = `summary-sub ${pl >= 0 ? 'positive' : 'negative'}`;
-        plEl.textContent = `${sign}${formatCurrency(pl)} (${sign}${formatNumber(plPerc)}%)`;
+        document.getElementById('total-val').textContent = fmtCurrency(totalVal);
+        var plEl = document.getElementById('total-pl');
+        var sign = pl >= 0 ? '+' : '';
+        plEl.className = 'summary-sub ' + (pl >= 0 ? 'positive' : 'negative');
+        plEl.textContent = sign + fmtCurrency(pl) + ' (' + sign + fmtNumber(plPerc) + '%)';
     }
 
     function renderAssets() {
-        const container = document.getElementById('assets-list');
-        const select = document.getElementById('pac-asset');
+        var container = document.getElementById('assets-list');
+        var select = document.getElementById('pac-asset');
         container.innerHTML = '';
         select.innerHTML = '';
 
-        const totalVal = assets.reduce((s, a) => s + (a.quote * a.price), 0);
+        var totalVal = 0;
+        assets.forEach(function(a) { totalVal += (a.quote * a.price); });
         document.getElementById('asset-count').textContent = assets.length;
 
         if (!assets.length) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">📊</div>
-                    <div class="empty-state-title">Nessun asset</div>
-                    <div class="empty-state-desc">Aggiungi il tuo primo asset per iniziare</div>
-                </div>`;
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">-</div><div class="empty-state-title">Nessun asset</div><div class="empty-state-desc">Aggiungi il tuo primo asset per iniziare</div></div>';
             return;
         }
 
-        assets.forEach((a, i) => {
-            const val = a.quote * a.price;
-            const weight = totalVal > 0 ? ((val / totalVal) * 100).toFixed(1) : '0.0';
-            const pmc = getPMC(a.isin, a.name);
-            const spent = getTotalSpent(a.isin, a.name);
-            const pl = val - spent;
-            const plPerc = pmc > 0 ? ((a.price - pmc) / pmc) * 100 : 0;
-            const isPos = pl >= 0;
-            const color = a.color || COLORS[i % COLORS.length];
-            const initials = a.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+        assets.forEach(function(a, i) {
+            var val = a.quote * a.price;
+            var weight = totalVal > 0 ? ((val / totalVal) * 100).toFixed(1) : '0.0';
+            var pmc = getPMC(a.isin, a.name);
+            var spent = getTotalSpent(a.isin, a.name);
+            var pl = val - spent;
+            var plPerc = pmc > 0 ? ((a.price - pmc) / pmc) * 100 : 0;
+            var isPos = pl >= 0;
+            var color = a.color || COLORS[i % COLORS.length];
+            var initials = a.name.split(' ').map(function(w) { return w[0]; }).join('').substring(0,2).toUpperCase();
 
-            const card = document.createElement('div');
+            var card = document.createElement('div');
             card.className = 'asset-card';
-            card.innerHTML = `
-                <div class="asset-card-top">
-                    <div style="display:flex;align-items:center;flex:1;min-width:0;">
-                        <div class="asset-icon" style="background:${color}22;color:${color};">${initials}</div>
-                        <div class="asset-meta">
-                            <div class="asset-name">${a.name}</div>
-                            <div class="asset-isin">${a.isin} · ${weight}%</div>
-                        </div>
-                    </div>
-                    <div class="asset-values">
-                        <div class="asset-price">${formatCurrency(val)}</div>
-                        <div class="asset-change ${isPos ? 'positive' : 'negative'}">
-                            ${isPos ? '+' : ''}${formatCurrency(pl)} (${isPos ? '+' : ''}${formatNumber(plPerc, 1)}%)
-                        </div>
-                    </div>
-                </div>
-                <div class="asset-details">
-                    <div class="detail-cell">
-                        <span class="detail-label">Quote</span>
-                        <input type="number" class="detail-input" step="0.0001" value="${formatNumber(a.quote, 4)}" 
-                            onchange="updateAsset(${i}, 'quote', this.value)">
-                    </div>
-                    <div class="detail-cell">
-                        <span class="detail-label">Prezzo Live</span>
-                        <input type="number" class="detail-input" step="0.01" value="${formatNumber(a.price, 2)}" 
-                            onchange="updateAsset(${i}, 'price', this.value)">
-                    </div>
-                    <div class="detail-cell">
-                        <span class="detail-label">PMC</span>
-                        <span class="detail-value">${pmc > 0 ? formatCurrency(pmc) : '—'}</span>
-                    </div>
-                </div>
-                <div class="asset-actions-row">
-                    <button class="btn-text" onclick="openModal('pacModal'); document.getElementById('pac-asset').value=${i}">+ Versamento</button>
-                    <button class="btn-text danger" onclick="deleteAsset(${i})">Elimina</button>
-                </div>
-            `;
+            card.innerHTML = 
+                '<div class="asset-card-top">' +
+                    '<div style="display:flex;align-items:center;flex:1;min-width:0;">' +
+                        '<div class="asset-icon" style="background:' + color + '22;color:' + color + ';">' + initials + '</div>' +
+                        '<div class="asset-meta">' +
+                            '<div class="asset-name">' + a.name + '</div>' +
+                            '<div class="asset-isin">' + a.isin + ' &middot; ' + weight + '%</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="asset-values">' +
+                        '<div class="asset-price">' + fmtCurrency(val) + '</div>' +
+                        '<div class="asset-change ' + (isPos ? 'positive' : 'negative') + '">' +
+                            (isPos ? '+' : '') + fmtCurrency(pl) + ' (' + (isPos ? '+' : '') + fmtNumber(plPerc, 1) + '%)' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="asset-details">' +
+                    '<div class="detail-cell">' +
+                        '<span class="detail-label">Quote</span>' +
+                        '<input type="number" class="detail-input" step="0.000001" value="' + fmtInputNumber(a.quote, 6) + '" ' +
+                        'onchange="window.updateAsset(' + i + ', ' + "'quote'" + ', this.value)">' +
+                    '</div>' +
+                    '<div class="detail-cell">' +
+                        '<span class="detail-label">Prezzo Live</span>' +
+                        '<input type="number" class="detail-input" step="0.01" value="' + fmtInputNumber(a.price, 2) + '" ' +
+                        'onchange="window.updateAsset(' + i + ', ' + "'price'" + ', this.value)">' +
+                    '</div>' +
+                    '<div class="detail-cell">' +
+                        '<span class="detail-label">PMC</span>' +
+                        '<span class="detail-value">' + (pmc > 0 ? fmtCurrency(pmc) : '-') + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="asset-actions-row">' +
+                    '<button class="btn-text" onclick="window.openModal(' + "'pacModal'" + '); document.getElementById(' + "'pac-asset'" + ').value=' + i + '">+ Versamento</button>' +
+                    '<button class="btn-text danger" onclick="window.deleteAsset(' + i + ')">Elimina</button>' +
+                '</div>';
             container.appendChild(card);
 
-            const opt = document.createElement('option');
+            var opt = document.createElement('option');
             opt.value = i;
             opt.textContent = a.name;
             select.appendChild(opt);
@@ -1068,46 +1039,48 @@
     }
 
     function renderHistory() {
-        const tbody = document.getElementById('history-tbody');
+        var tbody = document.getElementById('history-tbody');
         tbody.innerHTML = '';
         document.getElementById('tx-count').textContent = history.length;
 
         if (!history.length) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-tertiary);padding:24px;">Nessuna transazione</td></tr>`;
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-tertiary);padding:24px;">Nessuna transazione</td></tr>';
             return;
         }
 
-        [...history].reverse().forEach(tx => {
-            const isSell = tx.type === 'SELL';
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${tx.date}</strong></td>
-                <td>
-                    <div class="tx-asset">${tx.assetName}</div>
-                    <div class="tx-asset-sub">${tx.assetIsin}</div>
-                </td>
-                <td><span class="tx-type ${isSell ? 'sell' : 'buy'}">${isSell ? 'VENDITA' : 'ACQUISTO'}</span></td>
-                <td>${formatCurrency(tx.amount)}</td>
-                <td>${isSell ? '' : '+'}${formatNumber(tx.shares, 4)}</td>
-                <td>${formatCurrency(tx.price)}</td>
-                <td><button class="btn-text danger" onclick="deleteTx('${tx.id}')">✕</button></td>
-            `;
+        var sorted = history.slice().reverse();
+        sorted.forEach(function(tx) {
+            var isSell = tx.type === 'SELL';
+            var tr = document.createElement('tr');
+            tr.innerHTML = 
+                '<td><strong>' + tx.date + '</strong></td>' +
+                '<td>' +
+                    '<div class="tx-asset">' + tx.assetName + '</div>' +
+                    '<div class="tx-asset-sub">' + tx.assetIsin + '</div>' +
+                '</td>' +
+                '<td><span class="tx-type ' + (isSell ? 'sell' : 'buy') + '">' + (isSell ? 'VENDITA' : 'ACQUISTO') + '</span></td>' +
+                '<td>' + fmtCurrency(tx.amount) + '</td>' +
+                '<td>' + (isSell ? '' : '+') + fmtNumber(tx.shares, 6) + '</td>' +
+                '<td>' + fmtCurrency(tx.price) + '</td>' +
+                '<td><button class="btn-text danger" onclick="window.deleteTx(' + "'" + tx.id + "'" + ')">x</button></td>';
             tbody.appendChild(tr);
         });
     }
 
     function renderCharts() {
-        // Allocation Doughnut
-        const active = assets.filter(a => a.quote > 0 && a.price > 0);
-        const allocCtx = document.getElementById('allocChart');
+        if (typeof Chart === 'undefined') return;
+
+        var active = assets.filter(function(a) { return a.quote > 0 && a.price > 0; });
+
+        var allocCtx = document.getElementById('allocChart');
         if (charts.alloc) charts.alloc.destroy();
         charts.alloc = new Chart(allocCtx, {
             type: 'doughnut',
             data: {
-                labels: active.map(a => a.name),
+                labels: active.map(function(a) { return a.name; }),
                 datasets: [{
-                    data: active.map(a => a.quote * a.price),
-                    backgroundColor: active.map((a,i) => a.color || COLORS[i % COLORS.length]),
+                    data: active.map(function(a) { return a.quote * a.price; }),
+                    backgroundColor: active.map(function(a, i) { return a.color || COLORS[i % COLORS.length]; }),
                     borderColor: '#121212',
                     borderWidth: 3
                 }]
@@ -1117,8 +1090,8 @@
                 plugins: {
                     datalabels: {
                         color: '#fff', font: { family: 'Inter', weight: 'bold', size: 10 },
-                        formatter: (v, ctx) => {
-                            const sum = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+                        formatter: function(v, ctx) {
+                            var sum = ctx.chart.data.datasets[0].data.reduce(function(a,b){return a+b;}, 0);
                             return sum ? (v*100/sum).toFixed(1)+'%' : '';
                         }
                     },
@@ -1128,56 +1101,51 @@
             }
         });
 
-        // Monthly Bar
-        const monthly = {};
-        history.filter(tx => tx.type === 'BUY').forEach(tx => {
-            const parts = tx.date.split('/');
+        var monthly = {};
+        history.filter(function(tx) { return tx.type === 'BUY'; }).forEach(function(tx) {
+            var parts = tx.date.split('/');
             if (parts.length === 3) {
-                const key = `${parts[2]}-${parts[1]}`;
+                var key = parts[2] + '-' + parts[1];
                 monthly[key] = (monthly[key] || 0) + tx.amount;
             }
         });
-        const mKeys = Object.keys(monthly).sort();
-        const mLabels = mKeys.map(k => {
-            const [y,m] = k.split('-');
-            return `${m}/${y}`;
-        });
+        var mKeys = Object.keys(monthly).sort();
+        var mLabels = mKeys.map(function(k) { var p = k.split('-'); return p[1] + '/' + p[0]; });
         if (charts.monthly) charts.monthly.destroy();
         charts.monthly = new Chart(document.getElementById('monthlyChart'), {
             type: 'bar',
-            data: { labels: mLabels, datasets: [{ data: mKeys.map(k=>monthly[k]), backgroundColor: '#007aff', borderRadius: 6 }] },
+            data: { labels: mLabels, datasets: [{ data: mKeys.map(function(k){return monthly[k];}), backgroundColor: '#007aff', borderRadius: 6 }] },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 plugins: { datalabels: { display: false }, legend: { display: false } },
                 scales: {
                     x: { ticks: { color: '#636366', font: { size: 10 } }, grid: { display: false } },
-                    y: { ticks: { color: '#636366', font: { size: 10 }, callback: v => '€'+v }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                    y: { ticks: { color: '#636366', font: { size: 10 }, callback: function(v){return 'EUR'+v;} }, grid: { color: 'rgba(255,255,255,0.04)' } }
                 }
             }
         });
 
-        // P&L Bar
-        const plAssets = assets.filter(a => a.quote > 0);
-        const plVals = plAssets.map(a => {
-            const val = a.quote * a.price;
-            const spent = getTotalSpent(a.isin, a.name);
+        var plAssets = assets.filter(function(a) { return a.quote > 0; });
+        var plVals = plAssets.map(function(a) {
+            var val = a.quote * a.price;
+            var spent = getTotalSpent(a.isin, a.name);
             return val - spent;
         });
         if (charts.pl) charts.pl.destroy();
         charts.pl = new Chart(document.getElementById('plChart'), {
             type: 'bar',
             data: {
-                labels: plAssets.map(a => a.name),
+                labels: plAssets.map(function(a) { return a.name; }),
                 datasets: [{
                     data: plVals,
-                    backgroundColor: plVals.map(v => v >= 0 ? '#00c805' : '#ff5000'),
+                    backgroundColor: plVals.map(function(v) { return v >= 0 ? '#00c805' : '#ff5000'; }),
                     borderRadius: 6
                 }]
             },
             options: {
                 indexAxis: 'y', responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, formatter: v => `€${v.toFixed(0)}` },
+                    datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, formatter: function(v) { return 'EUR' + v.toFixed(0); } },
                     legend: { display: false }
                 },
                 scales: {
@@ -1188,24 +1156,23 @@
         });
     }
 
-    // ===================== ACTIONS =====================
     function submitPac() {
-        const idx = parseInt(document.getElementById('pac-asset').value);
-        const amount = parseFloat(document.getElementById('pac-amount').value);
-        const shares = parseFloat(document.getElementById('pac-shares').value);
-        const dateInput = document.getElementById('pac-date').value;
+        var idx = parseInt(document.getElementById('pac-asset').value);
+        var amount = parseFloat(document.getElementById('pac-amount').value);
+        var shares = parseFloat(document.getElementById('pac-shares').value);
+        var dateInput = document.getElementById('pac-date').value;
 
         if (!assets[idx]) return;
-        const asset = assets[idx];
-        const price = asset.price;
+        var asset = assets[idx];
+        var price = asset.price;
 
-        const validAmount = validateGroup('grp-amount', !isNaN(amount) && amount > 0);
-        const validShares = validateGroup('grp-shares', !isNaN(shares) && shares > 0);
+        var validAmount = validateGroup('grp-amount', !isNaN(amount) && amount > 0);
+        var validShares = validateGroup('grp-shares', !isNaN(shares) && shares > 0);
 
         if (!validAmount && !validShares) return;
         if (price <= 0) { showToast('Prezzo asset non valido', 'error'); return; }
 
-        let addShares = 0, invest = 0;
+        var addShares = 0, invest = 0;
         if (!isNaN(shares) && shares > 0) {
             addShares = shares;
             invest = shares * price;
@@ -1217,9 +1184,9 @@
         asset.quote += addShares;
         asset.lastBuyPrice = price;
 
-        let dateStr;
+        var dateStr;
         if (dateInput) {
-            const d = new Date(dateInput);
+            var d = new Date(dateInput);
             dateStr = d.toLocaleDateString('it-IT');
         } else {
             dateStr = new Date().toLocaleDateString('it-IT');
@@ -1245,20 +1212,20 @@
     }
 
     function addAsset() {
-        const name = document.getElementById('new-name').value.trim();
-        const isin = document.getElementById('new-isin').value.trim().toUpperCase();
-        const quote = parseFloat(document.getElementById('new-quote').value) || 0;
-        const price = parseFloat(document.getElementById('new-price').value) || 0;
+        var name = document.getElementById('new-name').value.trim();
+        var isin = document.getElementById('new-isin').value.trim().toUpperCase();
+        var quote = parseFloat(document.getElementById('new-quote').value) || 0;
+        var price = parseFloat(document.getElementById('new-price').value) || 0;
 
-        const vName = validateGroup('grp-name', name.length > 0);
-        const vIsin = validateGroup('grp-isin', isin.length > 0);
-        const vPrice = validateGroup('grp-price', price > 0);
+        var vName = validateGroup('grp-name', name.length > 0);
+        var vIsin = validateGroup('grp-isin', isin.length > 0);
+        var vPrice = validateGroup('grp-price', price > 0);
 
         if (!vName || !vIsin || !vPrice) return;
 
         assets.push({
             id: Date.now().toString(),
-            name, isin, quote, price,
+            name: name, isin: isin, quote: quote, price: price,
             lastBuyPrice: price,
             color: COLORS[assets.length % COLORS.length]
         });
@@ -1273,28 +1240,36 @@
     }
 
     function updateAsset(idx, key, val) {
-        const num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
+        var clean = val.replace(/\./g, '').replace(',', '.');
+        var num = parseFloat(clean);
         if (isNaN(num)) return;
         assets[idx][key] = num;
         saveAll();
     }
 
     function deleteAsset(idx) {
-        const a = assets[idx];
-        if (!confirm(`Eliminare ${a.name}?
-Le transazioni associate rimarranno nello storico.`)) return;
+        var a = assets[idx];
+        if (!confirm('Eliminare ' + a.name + '? Le transazioni associate rimarranno nello storico.')) return;
         assets.splice(idx, 1);
         saveAll();
         showToast('Asset eliminato', 'info');
     }
 
     function deleteTx(id) {
-        const idx = history.findIndex(h => h.id === id);
+        var idx = -1;
+        for (var i = 0; i < history.length; i++) {
+            if (history[i].id === id) { idx = i; break; }
+        }
         if (idx === -1) return;
-        const tx = history[idx];
-        if (!confirm(`Cancellare la transazione del ${tx.date}?`)) return;
+        var tx = history[idx];
+        if (!confirm('Cancellare la transazione del ' + tx.date + '?')) return;
 
-        const asset = assets.find(a => a.isin === tx.assetIsin || a.name === tx.assetName);
+        var asset = null;
+        for (var j = 0; j < assets.length; j++) {
+            if (assets[j].isin === tx.assetIsin || assets[j].name === tx.assetName) {
+                asset = assets[j]; break;
+            }
+        }
         if (asset && tx.type === 'BUY') {
             asset.quote = Math.max(0, asset.quote - tx.shares);
         }
@@ -1304,26 +1279,23 @@ Le transazioni associate rimarranno nello storico.`)) return;
     }
 
     function resetData() {
-        if (!confirm('AZZERAMENTO TOTALE
-
-Vuoi davvero cancellare TUTTO il portafoglio e lo storico?')) return;
+        if (!confirm('AZZERAMENTO TOTALE. Vuoi davvero cancellare TUTTO?')) return;
         assets = JSON.parse(JSON.stringify(defaultAssets));
         history = [];
         saveAll();
         showToast('Dati azzerati', 'success');
     }
 
-    // ===================== CSV IMPORT =====================
     function triggerCSV() {
         document.getElementById('csv-file-input').click();
     }
 
     function parseCSVLine(line) {
-        const result = [];
-        let current = '';
-        let inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
+        var result = [];
+        var current = '';
+        var inQuotes = false;
+        for (var i = 0; i < line.length; i++) {
+            var char = line[i];
             if (char === '"') {
                 inQuotes = !inQuotes;
             } else if (char === ',' && !inQuotes) {
@@ -1334,23 +1306,21 @@ Vuoi davvero cancellare TUTTO il portafoglio e lo storico?')) return;
             }
         }
         result.push(current.trim());
-        return result.map(c => c.replace(/^"|"$/g, '').trim());
+        return result.map(function(c) { return c.replace(/^"|"$/g, '').trim(); });
     }
 
     function importCSV(e) {
-        const file = e.target.files[0];
+        var file = e.target.files[0];
         if (!file) return;
-        const reader = new FileReader();
+        var reader = new FileReader();
 
         reader.onload = function(evt) {
-            const text = evt.target.result;
-            const lines = text.split(/
-?
-/).filter(l => l.trim());
+            var text = evt.target.result;
+            var lines = text.split(/\r?\n/).filter(function(l) { return l.trim(); });
             if (lines.length < 2) { showToast('File CSV vuoto', 'error'); return; }
 
-            const headers = parseCSVLine(lines[0]);
-            const idx = {
+            var headers = parseCSVLine(lines[0]);
+            var idx = {
                 cat: headers.indexOf('category'),
                 type: headers.indexOf('type'),
                 date: headers.indexOf('date'),
@@ -1362,54 +1332,72 @@ Vuoi davvero cancellare TUTTO il portafoglio e lo storico?')) return;
                 id: headers.indexOf('transaction_id')
             };
 
-            let imported = 0;
-            const assetMap = {};
+            var imported = 0;
+            var assetMap = {};
 
-            for (let i = 1; i < lines.length; i++) {
-                const cols = parseCSVLine(lines[i]);
+            for (var i = 1; i < lines.length; i++) {
+                var cols = parseCSVLine(lines[i]);
                 if (cols[idx.cat] !== 'TRADING') continue;
                 if (cols[idx.type] !== 'BUY' && cols[idx.type] !== 'SELL') continue;
 
-                const rawDate = cols[idx.date];
-                const dParts = rawDate.split('-');
-                const formattedDate = dParts.length === 3 ? `${dParts[2]}/${dParts[1]}/${dParts[0]}` : rawDate;
+                var rawDate = cols[idx.date];
+                var dParts = rawDate.split('-');
+                var formattedDate = dParts.length === 3 ? dParts[2] + '/' + dParts[1] + '/' + dParts[0] : rawDate;
 
-                const name = cols[idx.name];
-                let isin = cols[idx.symbol];
-                const mapped = ISIN_MAP[isin] || ISIN_MAP[isin + '\n'];
+                var name = cols[idx.name];
+                var isin = cols[idx.symbol];
+                var mapped = ISIN_MAP[isin];
                 if (mapped) isin = mapped;
 
-                const shares = Math.abs(parseFloat(cols[idx.shares].replace(',', '.'))) || 0;
-                const price = parseFloat(cols[idx.price].replace(',', '.')) || 0;
-                const amount = Math.abs(parseFloat(cols[idx.amount].replace(',', '.'))) || 0;
-                const type = cols[idx.type];
-                const txId = cols[idx.id] || (Date.now().toString() + i);
+                var sharesRaw = cols[idx.shares] || '0';
+                var priceRaw = cols[idx.price] || '0';
+                var amountRaw = cols[idx.amount] || '0';
+
+                function parseDecimal(s) {
+                    s = s.trim();
+                    if (s.indexOf(',') !== -1 && s.indexOf('.') !== -1) {
+                        return parseFloat(s.replace(/\./g, '').replace(',', '.'));
+                    } else if (s.indexOf(',') !== -1) {
+                        return parseFloat(s.replace(',', '.'));
+                    } else {
+                        return parseFloat(s);
+                    }
+                }
+
+                var sharesVal = Math.abs(parseDecimal(sharesRaw)) || 0;
+                var priceVal = parseDecimal(priceRaw) || 0;
+                var amountVal = Math.abs(parseDecimal(amountRaw)) || 0;
+                var type = cols[idx.type];
+                var txId = cols[idx.id] || (Date.now().toString() + i);
 
                 history.push({
                     id: txId, date: formattedDate, assetName: name, assetIsin: isin,
-                    amount, shares: type === 'SELL' ? -shares : shares, price, type
+                    amount: amountVal, shares: type === 'SELL' ? -sharesVal : sharesVal, price: priceVal, type: type
                 });
                 imported++;
 
                 if (!assetMap[isin]) {
                     assetMap[isin] = {
                         id: Date.now().toString() + Math.random(),
-                        name, isin, quote: 0, price, lastBuyPrice: price,
+                        name: name, isin: isin, quote: 0, price: priceVal, lastBuyPrice: priceVal,
                         color: COLORS[Object.keys(assetMap).length % COLORS.length]
                     };
                 }
                 if (type === 'BUY') {
-                    assetMap[isin].quote += shares;
-                    assetMap[isin].lastBuyPrice = price;
+                    assetMap[isin].quote += sharesVal;
+                    assetMap[isin].lastBuyPrice = priceVal;
                 } else {
-                    assetMap[isin].quote -= shares;
+                    assetMap[isin].quote -= sharesVal;
                 }
             }
 
-            // Merge assets
-            Object.values(assetMap).forEach(newAsset => {
+            Object.keys(assetMap).forEach(function(key) {
+                var newAsset = assetMap[key];
                 if (newAsset.quote <= 0.0001) return;
-                const existing = assets.find(a => a.isin === newAsset.isin);
+                var existing = null;
+                for (var k = 0; k < assets.length; k++) {
+                    if (assets[k].isin === newAsset.isin) { existing = assets[k]; break; }
+                }
                 if (existing) {
                     existing.quote += newAsset.quote;
                 } else {
@@ -1420,18 +1408,17 @@ Vuoi davvero cancellare TUTTO il portafoglio e lo storico?')) return;
             e.target.value = '';
             saveAll();
             fetchPrices();
-            showToast(`${imported} transazioni importate`, 'success');
+            showToast(imported + ' transazioni importate', 'success');
         };
         reader.readAsText(file);
     }
 
-    // ===================== MODALS =====================
     function openModal(id) {
-        const el = document.getElementById(id);
+        var el = document.getElementById(id);
         el.classList.add('active');
         document.body.style.overflow = 'hidden';
-        // Reset validation
-        el.querySelectorAll('.form-group').forEach(g => g.classList.remove('invalid'));
+        var groups = el.querySelectorAll('.form-group');
+        for (var i = 0; i < groups.length; i++) groups[i].classList.remove('invalid');
     }
 
     function closeModal(id) {
@@ -1444,11 +1431,66 @@ Vuoi davvero cancellare TUTTO il portafoglio e lo storico?')) return;
     }
 
     function closeAllModals() {
-        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        var mods = document.querySelectorAll('.modal-overlay');
+        for (var i = 0; i < mods.length; i++) mods[i].classList.remove('active');
         document.body.style.overflow = '';
     }
 
-    // ===================== BOOT =====================
+    function init() {
+        try {
+            loadLocal();
+
+            if (typeof firebase !== 'undefined') {
+                try {
+                    firebase.initializeApp(firebaseConfig);
+                    db = firebase.database();
+                    portfolioRef = db.ref('pac_portfolio');
+                    historyRef = db.ref('pac_history');
+                    firebaseReady = true;
+
+                    portfolioRef.on('value', function(snap) {
+                        var data = snap.val();
+                        if (data) { 
+                            assets = ensureArray(data); 
+                            saveLocal(); 
+                            render(); 
+                        }
+                    });
+                    historyRef.on('value', function(snap) {
+                        var data = snap.val();
+                        if (data) { 
+                            history = ensureArray(data); 
+                            saveLocal(); 
+                            render(); 
+                        }
+                    });
+                } catch(e) {
+                    console.warn('Firebase init failed:', e);
+                    firebaseReady = false;
+                }
+            }
+
+            render();
+
+            setTimeout(function() {
+                fetchPrices();
+            }, 500);
+
+            if (updateTimer) clearInterval(updateTimer);
+            updateTimer = setInterval(fetchPrices, UPDATE_INTERVAL_MS);
+
+            window.addEventListener('online', function() { isOnline = true; setStatus('online'); fetchPrices(); });
+            window.addEventListener('offline', function() { isOnline = false; setStatus('offline'); });
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAllModals(); });
+            document.getElementById('csv-file-input').addEventListener('change', importCSV);
+
+            setStatus('online');
+        } catch(err) {
+            console.error('Init error:', err);
+            showToast('Errore avvio: ' + err.message, 'error', 5000);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
