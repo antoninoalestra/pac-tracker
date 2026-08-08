@@ -80,6 +80,7 @@
         .toast.error { border-color: var(--accent-red); color: var(--accent-red); }
         .toast.info { border-color: var(--accent-blue); color: var(--accent-blue); }
 
+        /* Navbar Desktop Centrata */
         .main-nav {
             position: fixed;
             top: 0;
@@ -90,7 +91,7 @@
             backdrop-filter: blur(24px) saturate(1.2);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             padding: 0 20px;
             z-index: 100;
             max-width: 900px;
@@ -98,25 +99,19 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .nav-brand h1 {
-            font-size: 1.15rem;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            color: var(--text-primary);
-        }
-
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            gap: 8px;
         }
         .nav-link {
             background: var(--surface);
             border: 1px solid var(--border);
             color: var(--text-secondary);
-            padding: 7px 14px;
-            border-radius: 10px;
-            font-size: 0.78rem;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
             white-space: nowrap;
@@ -308,9 +303,7 @@
         }
 
         @media (max-width: 600px) {
-            .asset-card-top {
-                gap: 8px;
-            }
+            .asset-card-top { gap: 8px; }
             .asset-details {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 12px 10px;
@@ -464,6 +457,8 @@
         @media (max-width: 768px) {
             .bottom-nav { display: flex; }
             .desktop-only { display: none !important; }
+            .main-nav { display: none !important; }
+            body { padding-top: 16px; }
         }
         @media (min-width: 769px) {
             .mobile-only { display: none !important; }
@@ -652,11 +647,9 @@
     <div class="toast" id="toast"></div>
     <input type="file" id="csv-file-input" accept=".csv" style="display:none">
 
-    <nav class="main-nav">
-        <div class="nav-brand">
-            <h1>Portfolio</h1>
-        </div>
-        <div class="nav-links desktop-only">
+    <!-- Navbar Desktop Centrata -->
+    <nav class="main-nav desktop-only">
+        <div class="nav-links">
             <button class="nav-link primary" onclick="window.openModal('pacModal')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span>Versamento</span>
